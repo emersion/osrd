@@ -1,0 +1,6 @@
+{
+  "name": "Nom",
+  "stop_time": "Temps d'arrêt",
+  "arrival_time": "Heure d'arrivée",
+  "departure_time": "Heure de départ"
+}

@@ -16,6 +16,7 @@ import ItineraryV2 from 'modules/pathfinding/components/Itinerary/ItineraryV2';
 import RollingStock2Img from 'modules/rollingStock/components/RollingStock2Img';
 import { RollingStockSelector } from 'modules/rollingStock/components/RollingStockSelector';
 import { useStoreDataForRollingStockSelector } from 'modules/rollingStock/components/RollingStockSelector/useStoreDataForRollingStockSelector';
+import TimesStops from 'modules/timesStops/TimesStops';
 import { Map } from 'modules/trainschedule/components/ManageTrainSchedule';
 import ElectricalProfiles from 'modules/trainschedule/components/ManageTrainSchedule/ElectricalProfiles';
 import TrainSettings from 'modules/trainschedule/components/ManageTrainSchedule/TrainSettings';
@@ -105,7 +106,7 @@ const ManageTrainScheduleV2 = () => {
       </div>
     ),
     label: t('tabs.timesStops'),
-    content: null,
+    content: pathFinding && <TimesStops path={pathFinding} />,
   };
 
   const tabSimulationSettings = {
