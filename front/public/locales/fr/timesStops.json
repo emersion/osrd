@@ -2,5 +2,7 @@
   "name": "Nom",
   "stop_time": "Temps d'arrêt",
   "arrival_time": "Heure d'arrivée",
-  "departure_time": "Heure de départ"
+  "departure_time": "Heure de départ",
+  "reception_on_closed_signal": "Réception sur signal fermé",
+  "theoretical_margin": "Marge théorique"
 }

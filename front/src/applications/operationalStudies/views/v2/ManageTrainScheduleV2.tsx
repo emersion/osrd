@@ -23,7 +23,7 @@ import TrainSettings from 'modules/trainschedule/components/ManageTrainSchedule/
 import { formatKmValue } from 'utils/strings';
 
 const ManageTrainScheduleV2 = () => {
-  const { t } = useTranslation(['operationalStudies/manageTrainSchedule']);
+  const { t } = useTranslation(['operationalStudies/manageTrainSchedule', 'timesStops']);
   const { getOriginV2, getDestinationV2 } = useOsrdConfSelectors();
   const origin = useSelector(getOriginV2);
   const destination = useSelector(getDestinationV2);
@@ -106,7 +106,7 @@ const ManageTrainScheduleV2 = () => {
       </div>
     ),
     label: t('tabs.timesStops'),
-    content: pathFinding && <TimesStops path={pathFinding} />,
+    content: pathProperties && <TimesStops path={pathProperties} />,
   };
 
   const tabSimulationSettings = {

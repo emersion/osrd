@@ -2,5 +2,7 @@
   "name": "Name",
   "stop_time": "Stop Time",
   "arrival_time": "Arrival Time",
-  "departure_time": "Departure Time"
+  "departure_time": "Departure Time",
+  "reception_on_closed_signal": "Reception on Closed Signal",
+  "theoretical_margin": "Theoretical Margin"
 }

@@ -1,86 +1,115 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
-import { isEqual, omit } from 'lodash';
-import { DataSheetGrid, textColumn, keyColumn, intColumn, type Column } from 'react-datasheet-grid';
+import type { Position } from 'geojson';
+import {
+  DataSheetGrid,
+  textColumn,
+  keyColumn,
+  intColumn,
+  type Column,
+  checkboxColumn,
+} from 'react-datasheet-grid';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 
-import type { PointOnMap } from 'applications/operationalStudies/consts';
 import {
   osrdEditoastApi,
-  type PathfindingRequest,
-  type PathResponse,
+  type PathfindingResult,
+  type PathProperties,
   type PathWaypoint,
+  type TrackRange,
 } from 'common/api/osrdEditoastApi';
-import { useOsrdConfActions, useOsrdConfSelectors } from 'common/osrdContext';
-import { getPathfindingQuery } from 'common/Pathfinding/Pathfinding';
-import { useAppDispatch } from 'store';
-import type { ArrayElement } from 'utils/types';
+import DATATEST from 'common/Pathfinding/dataTest';
+import { useInfraID } from 'common/osrdContext';
 
 type TimesStopsProps = {
-  path: PathResponse;
+  path: PathfindingResult;
+};
+
+type SuggestedOP = {
+  prId: string;
+  name: string | null;
+  uic?: number;
+  ch: string | null;
+  ch_long_label?: string;
+  ch_short_label?: string;
+  ci?: number;
+  trigram?: string;
+  offsetOnTrack: number;
+  track: string;
+  /** Distance from the beginning of the path in mm */
+  positionOnPath: number;
+  coordinates: Position;
+  /** Id of the path step which will be defined only when the OP is transformed into a via */
+  stepId?: string;
+  /** Metadata given to mark a point as wishing to be deleted by the user.
+        It's useful for soft deleting the point (waiting to fix / remove all references)
+        If true, the train schedule is consider as invalid and must be edited */
+  deleted?: boolean;
+  arrival?: string | null;
+  locked?: boolean;
+  stop_for?: string | null;
+};
+
+const formatOPsToSuggestOPs = (
+  operationalPoints: PathProperties['operational_points']
+): SuggestedOP[] => {
+  const suggestedOPs: SuggestedOP[] = [];
+  operationalPoints?.forEach((op) => {
+    const { extensions, id, part, position } = op;
+    if (!extensions) return;
+    const { identifier, sncf } = extensions;
+    if (!identifier || !sncf) return;
+    const { name, uic } = identifier;
+    const { ch, ch_long_label, ch_short_label, ci, trigram } = sncf;
+    const { track } = part;
+    const positionOnPath = position;
+    suggestedOPs.push({
+      prId: id,
+      name,
+      uic,
+      ch,
+      ch_long_label,
+      ch_short_label,
+      ci,
+      trigram,
+      offsetOnTrack: 0,
+      track,
+      positionOnPath,
+      coordinates: [0, 0],
+    });
+  });
+  return suggestedOPs;
 };
 const TimesStops = ({ path }: TimesStopsProps) => {
   const { t } = useTranslation('timesStops');
+  const infraID = useInfraID();
 
-  const { getInfraID, getOrigin, getDestination, getVias, getRollingStockID } =
-    useOsrdConfSelectors();
-
-  const infraID = useSelector(getInfraID, isEqual);
-  const origin = useSelector(getOrigin, isEqual);
-  const destination = useSelector(getDestination, isEqual);
-  const vias = useSelector(getVias, isEqual);
-  const rollingStockID = useSelector(getRollingStockID, isEqual);
-
-  const dispatch = useAppDispatch();
-  const { replaceVias, updateSuggeredVias, updateItinerary } = useOsrdConfActions();
-
-  const [postPathfinding] = osrdEditoastApi.endpoints.postPathfinding.useMutation();
-
-  const [timesStopsSteps, setTimesStopsSteps] = useState<PathWaypoint[]>(path.steps);
-
-  const transformVias = ({ steps }: PathResponse) => {
-    if (steps && steps.length >= 2) {
-      const stepsAsPointOnMap: PointOnMap[] = steps.map((step) => ({
-        ...omit(step, ['geo']),
-        coordinates: step.geo?.coordinates,
-        id: step.id || undefined,
-        name: step.name || undefined,
-      }));
-      const newVias = steps.slice(1, -1).flatMap((step: ArrayElement<PathResponse['steps']>) => {
-        const viaCoordinates = step.geo?.coordinates;
-        if (!!step.duration && viaCoordinates) {
-          return [
-            {
-              ...omit(step, ['geo']),
-              coordinates: viaCoordinates,
-              id: step.id || undefined,
-              name: step.name || undefined,
-              suggestion: false,
-            },
-          ];
-        }
-        return [];
-      });
-      dispatch(replaceVias(newVias));
-      dispatch(updateSuggeredVias(stepsAsPointOnMap));
-    }
-  };
-  const generatePathfindingParams = (): PathfindingRequest | null => {
-    dispatch(updateItinerary(undefined));
-    return getPathfindingQuery({ infraID, rollingStockID, origin, destination, vias });
-  };
+  const [postPathProperties] =
+    osrdEditoastApi.endpoints.postV2InfraByInfraIdPathProperties.useMutation();
+  const [timesStopsSteps, setTimesStopsSteps] = useState<Partial<PathWaypointColumn>[] | undefined>(
+    undefined
+  );
 
   useEffect(() => {
-    const newPath = { ...path, steps: timesStopsSteps };
-    transformVias(newPath);
-    dispatch(updateItinerary(newPath));
-    const params = generatePathfindingParams();
-    postPathfinding({ pathfindingRequest: params! });
-  }, [timesStopsSteps]);
+    postPathProperties({
+      infraId: infraID as number,
+      pathPropertiesInput: {
+        track_ranges: path.track_section_ranges as TrackRange[],
+      },
+    })
+      .unwrap()
+      .then((result) => {
+        const suggestedOPs = formatOPsToSuggestOPs(DATATEST);
+        setTimesStopsSteps(suggestedOPs);
+      });
+  }, [path]);
 
-  type PathWaypointColumn = Omit<PathWaypoint, 'duration'> & {
+  type PathWaypointColumn = SuggestedOP & {
     duration: number | null;
+    arrival_time: string | null;
+    departure_time: string | null;
+    reception_on_closed_signal: boolean;
+    theoretical_margin: string | null;
   };
 
   const columns: Column<PathWaypointColumn>[] = useMemo(
@@ -97,8 +126,29 @@ const TimesStops = ({ path }: TimesStopsProps) => {
         grow: 0.1,
       },
       {
+        ...keyColumn<PathWaypointColumn, 'arrival_time'>('arrival_time', textColumn),
+        title: t('arrival_time'),
+        grow: 0.5,
+      },
+      {
+        ...keyColumn<PathWaypointColumn, 'departure_time'>('departure_time', textColumn),
+        title: t('departure_time'),
+        grow: 0.5,
+      },
+      {
         ...keyColumn<PathWaypointColumn, 'duration'>('duration', intColumn),
         title: t('stop_time'),
+      },
+      {
+        ...keyColumn<PathWaypointColumn, 'reception_on_closed_signal'>(
+          'reception_on_closed_signal',
+          checkboxColumn
+        ),
+        title: t('reception_on_closed_signal'),
+      },
+      {
+        ...keyColumn<PathWaypointColumn, 'theoretical_margin'>('theoretical_margin', textColumn),
+        title: t('theoretical_margin'),
       },
     ],
     [t]
@@ -109,10 +159,9 @@ const TimesStops = ({ path }: TimesStopsProps) => {
       columns={columns}
       value={timesStopsSteps}
       onChange={(e) => {
-        setTimesStopsSteps(e as PathWaypoint[]);
+        setTimesStopsSteps(e as PathWaypointColumn[]);
       }}
       lockRows
-      rowClassName={({ rowData }) => (!rowData.suggestion ? 'activeRow' : '')}
       height={600}
     />
   );
