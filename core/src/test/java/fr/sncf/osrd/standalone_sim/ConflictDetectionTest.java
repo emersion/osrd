@@ -254,7 +254,7 @@ public class ConflictDetectionTest {
                     convertRequirements(0L, 0.0, simResultAWithStop.train),
                     convertRequirements(1L, 0.0, simResultB.train)));
             assertTrue(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == ROUTING));
-            assertTrue(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == SPACING));
+            assertFalse(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == SPACING));
         }
     }
 
