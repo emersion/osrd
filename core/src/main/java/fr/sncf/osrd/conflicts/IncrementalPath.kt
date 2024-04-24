@@ -8,7 +8,7 @@ import fr.sncf.osrd.utils.appendOnlyLinkedListOf
 import fr.sncf.osrd.utils.indexing.StaticIdxList
 import fr.sncf.osrd.utils.units.*
 
-data class PathFragmentStop(val fragmentOffset: Offset<PathFragment>, val onStopSignal: Boolean)
+data class PathFragmentStop(val fragmentOffset: Offset<Path>, val onStopSignal: Boolean)
 
 class PathFragment(
     val routes: StaticIdxList<Route>,
