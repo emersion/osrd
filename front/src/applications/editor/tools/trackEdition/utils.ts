@@ -78,6 +78,8 @@ export function getEditSpeedSectionState(
     interactionState: { type: 'idle' },
     hoveredItem: null,
     selectedSwitches: [],
+    highlightedRoutes: [],
+    routesTrackRanges: {},
   };
 }
 
@@ -92,5 +94,7 @@ export function getEditElectrificationState(
     interactionState: { type: 'idle' },
     hoveredItem: null,
     selectedSwitches: [],
+    highlightedRoutes: [],
+    routesTrackRanges: {},
   };
 }

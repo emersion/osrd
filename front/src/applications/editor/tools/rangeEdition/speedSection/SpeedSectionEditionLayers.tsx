@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 
 import { featureCollection } from '@turf/helpers';
 import type { Feature, FeatureCollection, LineString, Point } from 'geojson';
-import { mapValues } from 'lodash';
+import { mapValues, pick } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Layer, Popup, Source } from 'react-map-gl/maplibre';
 import { useSelector } from 'react-redux';
@@ -47,6 +47,8 @@ export const SpeedSectionEditionLayers = () => {
       mousePosition,
       hovered,
       selectedSwitches,
+      routesTrackRanges,
+      highlightedRoutes,
     },
     setState,
   } = useContext(EditorContext) as ExtendedEditorContextType<RangeEditionState<SpeedSectionEntity>>;
@@ -73,7 +75,7 @@ export const SpeedSectionEditionLayers = () => {
   const speedSectionsFeature: FeatureCollection = useMemo(() => {
     const flatEntity = flattenEntity(entity);
     // generate trackRangeFeatures
-    const trackRanges = entity.properties?.track_ranges || [];
+    const trackRanges = Object.values(pick(routesTrackRanges, highlightedRoutes)).flat();
     const trackRangeFeatures = trackRanges.flatMap((range, i) => {
       const trackState = trackSectionsCache[range.track];
       return trackState?.type === 'success'
@@ -90,7 +92,7 @@ export const SpeedSectionEditionLayers = () => {
       );
     }
     return featureCollection([...trackRangeFeatures, ...pslSignFeatures]);
-  }, [entity, trackSectionsCache]);
+  }, [entity, highlightedRoutes, trackSectionsCache]);
 
   const { speedSectionLayerProps, pslLayerProps } = useMemo(() => {
     const context = {

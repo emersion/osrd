@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty, keyBy, pick } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import EntityError from 'applications/editor/components/EntityError';
@@ -10,30 +10,40 @@ import ElectrificationMetadataForm from 'applications/editor/tools/rangeEdition/
 import EditPSLSection from 'applications/editor/tools/rangeEdition/speedSection/EditPSLSection';
 import SpeedSectionMetadataForm from 'applications/editor/tools/rangeEdition/speedSection/SpeedSectionMetadataForm';
 import type {
-  ElectrificationEntity,
+  RouteTrackRanges,
   RangeEditionState,
   SpeedSectionEntity,
   SpeedSectionPslEntity,
 } from 'applications/editor/tools/rangeEdition/types';
 import { speedSectionIsPsl } from 'applications/editor/tools/rangeEdition/utils';
 import type { ExtendedEditorContextType, PartialOrReducer } from 'applications/editor/types';
-import { osrdEditoastApi } from 'common/api/osrdEditoastApi';
+import {
+  osrdEditoastApi,
+  type GetInfraByInfraIdRoutesTrackRangesApiResponse,
+} from 'common/api/osrdEditoastApi';
 import CheckboxRadioSNCF from 'common/BootstrapSNCF/CheckboxRadioSNCF';
 import { useInfraID } from 'common/osrdContext';
+import { toggleElement } from 'utils/array';
 
 import TrackRangesList from './RangeEditionTrackRangeList';
+import RouteList from './RouteList';
 import SwitchList from '../speedSection/SwitchList';
 
 const RangeEditionLeftPanel = () => {
   const { t } = useTranslation();
   const {
     setState,
-    state: { entity, initialEntity, trackSectionsCache, selectedSwitches },
-  } = useContext(EditorContext) as ExtendedEditorContextType<
-    RangeEditionState<SpeedSectionEntity | ElectrificationEntity>
-  >;
+    state: {
+      entity,
+      initialEntity,
+      trackSectionsCache,
+      selectedSwitches,
+      highlightedRoutes,
+      routesTrackRanges,
+    },
+  } = useContext(EditorContext) as ExtendedEditorContextType<RangeEditionState<SpeedSectionEntity>>;
 
-  const [getRouteFromSwitchSelection, setGetRouteFromSwitchSelection] = useState(false);
+  const [slowDown3060, setSlowDown3060] = useState(false);
 
   const [getRoutesFromSwitch] =
     osrdEditoastApi.endpoints.postInfraByInfraIdRoutesNodes.useMutation();
@@ -42,10 +52,9 @@ const RangeEditionLeftPanel = () => {
     osrdEditoastApi.endpoints.getInfraByInfraIdRoutesTrackRanges.useLazyQuery();
 
   const [switchesRouteCandidates, setSwitchesRouteCandidates] = useState<string[] | null>(null);
-
-  const toggleGetRouteFromSwitchSelection = () => {
-    setGetRouteFromSwitchSelection(!getRouteFromSwitchSelection);
-    const selectiontype = getRouteFromSwitchSelection ? 'idle' : 'selectSwitch';
+  const toggleSlowDown3060 = () => {
+    setSlowDown3060(!slowDown3060);
+    const selectiontype = slowDown3060 ? 'idle' : 'selectSwitch';
     const newEntity = cloneDeep(entity) as SpeedSectionEntity;
     if (newEntity.properties.extensions) {
       newEntity.properties.extensions = undefined;
@@ -83,6 +92,26 @@ const RangeEditionLeftPanel = () => {
     });
   };
 
+  const makeTrackRangesByRouteName = (
+    trackRangesResults: GetInfraByInfraIdRoutesTrackRangesApiResponse,
+    routes: string[]
+  ): RouteTrackRanges =>
+    trackRangesResults.reduce((acc, cur, index) => {
+      if (cur.type === 'Computed') {
+        const renamedFieldsTrackRanges = cur.track_ranges.map((trackRange) => {
+          const { begin, end, track } = trackRange;
+          return {
+            begin,
+            end,
+            track,
+            applicable_directions: trackRange.direction,
+          };
+        });
+        return { ...acc, [routes[index]]: renamedFieldsTrackRanges };
+      }
+      return acc;
+    }, {});
+
   const searchRoutesFromSwitch = async () => {
     const body = selectedSwitches.reduce(
       (accumulator, switchId) => ({ ...accumulator, [switchId]: null }),
@@ -95,42 +124,48 @@ const RangeEditionLeftPanel = () => {
       infraId: infraID as number,
       body,
     }).unwrap();
-    setSwitchesRouteCandidates(routesAndNodesPositions.routes);
+    const { routes, available_node_positions } = routesAndNodesPositions;
+    setSwitchesRouteCandidates(routes);
+    const trackRangesResults = await getTrackRangesByRoutes({
+      infraId: infraID as number,
+      routes: routes.join(','),
+    }).unwrap();
+    const trackRangesByRouteName = makeTrackRangesByRouteName(trackRangesResults, routes);
     setState({
+      routesTrackRanges: trackRangesByRouteName,
       optionsState: { type: 'idle' },
     });
   };
 
-  const getTrackRangesFromRouteId = async (routeId: string) => {
-    const trackRangesResults = await getTrackRangesByRoutes({
-      infraId: infraID as number,
-      routes: routeId,
-    }).unwrap();
-    if (trackRangesResults.length && trackRangesResults[0].type === 'Computed') {
-      const trackRanges = trackRangesResults[0].track_ranges.map((trackRange) => {
-        const { begin, end, track } = trackRange;
-        return {
-          begin,
-          end,
-          track,
-          applicable_directions: trackRange.direction,
-        };
-      });
+  const handleRouteClicked = (select: boolean) => async (routeId: string) => {
+    if (!isEmpty(routesTrackRanges)) {
       const newEntity = cloneDeep(entity) as SpeedSectionEntity;
-      newEntity.properties.track_ranges = trackRanges;
-      newEntity.properties.on_routes = [routeId];
-      setState({
-        optionsState: { type: 'idle' },
-      });
-      setState({
-        entity: newEntity,
-      });
+      const { properties } = newEntity;
+      if (select) {
+        properties.on_routes = toggleElement(properties.on_routes || [], routeId);
+        properties.track_ranges = Object.values(
+          pick(routesTrackRanges, properties.on_routes)
+        ).flat();
+        setState({
+          optionsState: { type: 'idle' },
+          entity: newEntity,
+          ...(highlightedRoutes.includes(routeId) !== properties.on_routes.includes(routeId) && {
+            highlightedRoutes: toggleElement(highlightedRoutes, routeId),
+          }),
+        });
+      } else {
+        const newHighlightedRoutes = toggleElement(highlightedRoutes, routeId);
+        setState({
+          optionsState: { type: 'idle' },
+          highlightedRoutes: newHighlightedRoutes,
+        });
+      }
     }
   };
 
   useEffect(() => {
     if (switchesRouteCandidates && switchesRouteCandidates.length > 0) {
-      getTrackRangesFromRouteId(switchesRouteCandidates[0]);
+      handleRouteClicked(true)(switchesRouteCandidates[0]);
     }
   }, [switchesRouteCandidates]);
 
@@ -156,7 +191,7 @@ const RangeEditionLeftPanel = () => {
       {initialEntity.objType === 'SpeedSection' && (
         <>
           <div>
-            {!getRouteFromSwitchSelection && (
+            {!slowDown3060 && (
               <div className="d-flex">
                 <CheckboxRadioSNCF
                   type="checkbox"
@@ -194,7 +229,7 @@ const RangeEditionLeftPanel = () => {
               </div>
             )}
 
-            {!getRouteFromSwitchSelection && entity.properties.track_ranges?.length === 0 && (
+            {!slowDown3060 && entity.properties.track_ranges?.length === 0 && (
               <p className="mt-3 font-size-1">{t('Editor.tools.speed-edition.toggle-psl-help')}</p>
             )}
             {!isPSL && (
@@ -203,13 +238,13 @@ const RangeEditionLeftPanel = () => {
                   type="checkbox"
                   id="get-route-from-switch"
                   name="get-route-from-switch"
-                  checked={getRouteFromSwitchSelection}
+                  checked={slowDown3060}
                   label={t('Editor.tools.speed-edition.ralen-30-60')}
-                  onChange={toggleGetRouteFromSwitchSelection}
+                  onChange={toggleSlowDown3060}
                 />
               </div>
             )}
-            {!getRouteFromSwitchSelection && isPSL && (
+            {!slowDown3060 && isPSL && (
               <EditPSLSection
                 entity={entity as SpeedSectionPslEntity}
                 setState={
@@ -224,7 +259,7 @@ const RangeEditionLeftPanel = () => {
           <hr />
         </>
       )}
-      {getRouteFromSwitchSelection && (
+      {slowDown3060 && (
         <>
           {t('Editor.tools.speed-edition.select-switches-to-get-route')}
           {selectedSwitches.length > 0 && (
@@ -248,22 +283,13 @@ const RangeEditionLeftPanel = () => {
         </>
       )}
       {switchesRouteCandidates && switchesRouteCandidates.length > 0 && (
-        <div className="my-3">
-          <label htmlFor="route-select">{t('Editor.tools.speed-edition.select-route')}</label>
-          <select
-            name="route-select"
-            className="bg-white"
-            onChange={(e) => {
-              getTrackRangesFromRouteId(e.target.value);
-            }}
-          >
-            {switchesRouteCandidates.map((route) => (
-              <option key={route} value={route}>
-                {route}
-              </option>
-            ))}
-          </select>
-        </div>
+        <RouteList
+          switchesRouteCandidates={switchesRouteCandidates}
+          onRouteSelect={handleRouteClicked(true)}
+          selectedRoutes={entity.properties.on_routes || []}
+          onRouteHighlight={handleRouteClicked(false)}
+          highlightedRoutes={highlightedRoutes}
+        />
       )}
 
       <TrackRangesList />

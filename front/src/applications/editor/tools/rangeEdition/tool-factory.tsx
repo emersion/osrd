@@ -28,6 +28,7 @@ import type {
   SpeedSectionPslEntity,
   SpeedSectionEntity,
   ElectrificationEntity,
+  InteractionState,
 } from './types';
 import {
   getPslSignNewPosition,
@@ -39,8 +40,9 @@ import {
   getObjTypeEdition,
   isNew,
 } from './utils';
+import type { OptionsStateType } from '../routeEdition/types';
 
-type EditorRange = SpeedSectionEntity | ElectrificationEntity;
+export type EditorRange = SpeedSectionEntity | ElectrificationEntity;
 type RangeEditionToolParams<T extends EditorRange> = {
   id: T['objType'];
   icon: IconType;
@@ -70,11 +72,28 @@ function getRangeEditionTool<T extends EditorRange>({
       entity,
       initialEntity: entity,
       hoveredItem: null,
-      interactionState: { type: 'idle' },
+      interactionState: { type: 'idle' } as InteractionState,
       trackSectionsCache: {},
+      optionsState: { type: 'idle' } as OptionsStateType,
       selectedSwitches: [],
-      optionsState: { type: 'idle' },
+      highlightedRoutes: [],
+      routesTrackRanges: {},
     };
+    // if (id === 'SpeedSection') {
+    //   return {
+    //     ...common,
+    //     rangeType: 'speedSection',
+    //     selectedSwitches: [] as string[],
+    //     highlightedRoutes: [] as SpeedSectionEntity[],
+    //   };
+    // }
+    // if (id === 'Electrification') {
+    //   return {
+    //     ...common,
+    //     rangeType: 'electrification',
+    //   };
+    // }
+    // return common;
   }
 
   const objectTypeEdition = getObjTypeEdition(layersEntity.objType);
