@@ -8,12 +8,12 @@ import fr.sncf.osrd.utils.appendOnlyLinkedListOf
 import fr.sncf.osrd.utils.indexing.StaticIdxList
 import fr.sncf.osrd.utils.units.*
 
-data class PathFragmentStop(val fragmentOffset: Offset<Path>, val onStopSignal: Boolean)
+data class PathStop(val pathOffset: Offset<Path>, val onStopSignal: Boolean)
 
 class PathFragment(
     val routes: StaticIdxList<Route>,
     val blocks: StaticIdxList<Block>,
-    val stops: List<PathFragmentStop>,
+    val stops: List<PathStop>,
     val containsStart: Boolean,
     val containsEnd: Boolean,
 
@@ -210,7 +210,7 @@ private class IncrementalPathImpl(
         }
 
         for (stop in fragment.stops) {
-            val offset = fragmentStartOffset + stop.fragmentOffset.distance
+            val offset = fragmentStartOffset + stop.pathOffset.distance
             stops.add(IncrementalStop(offset, stop.onStopSignal))
         }
 

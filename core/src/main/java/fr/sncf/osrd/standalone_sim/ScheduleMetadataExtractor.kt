@@ -184,16 +184,15 @@ fun run(
             envelopeAdapter,
             incrementalPath
         )
+    val pathStops =
+        schedule.stops.map {
+            PathStop(offsetConverter.toPath(Offset(it.position.meters)), it.onStopSignal)
+        }
     incrementalPath.extend(
         PathFragment(
             routePath,
             blockPath,
-            schedule.stops.map {
-                PathFragmentStop(
-                    offsetConverter.toPath(Offset(it.position.meters)),
-                    it.onStopSignal
-                )
-            },
+            pathStops,
             containsStart = true,
             containsEnd = true,
             startOffset,
@@ -210,6 +209,7 @@ fun run(
             routePath,
             blockPath,
             detailedBlockPath,
+            pathStops,
             loadedSignalInfra,
             blockInfra,
             envelopeWithStops,
@@ -236,6 +236,7 @@ fun routingRequirements(
     routePath: StaticIdxList<Route>,
     blockPath: StaticIdxList<Block>,
     detailedBlockPath: List<BlockPathElement>,
+    stops: List<PathStop>,
     loadedSignalInfra: LoadedSignalInfra,
     blockInfra: BlockInfra,
     envelope: EnvelopeInterpolate,
@@ -346,14 +347,31 @@ fun routingRequirements(
             ) ?: return null
         val limitingBlock = blockPath[limitingSignalSpec.blockIndex]
         val signal = blockInfra.getBlockSignals(limitingBlock)[limitingSignalSpec.signalIndex]
-        val signalOffset =
+        val limitingSignalOffset =
             blockInfra.getSignalsPositions(limitingBlock)[limitingSignalSpec.signalIndex].distance
 
         val blockOffset = blockOffsets[limitingSignalSpec.blockIndex]
         val sightDistance = rawInfra.getSignalSightDistance(rawInfra.getPhysicalSignal(signal))
 
         // find the location at which establishing the route becomes necessary
-        val criticalPos = blockOffset + signalOffset - sightDistance
+        var criticalPos = blockOffset + limitingSignalOffset - sightDistance
+
+        // check if an arrival on stop signal is scheduled between the critical position and the
+        // entry signal of the route
+        // in this case, just move the critical position to just after the stop
+        val entrySignalOffset =
+            blockOffset + blockInfra.getSignalsPositions(firstRouteBlock).first().distance
+        for (stopIdx in stops.size - 1 downTo 0) {
+            val stop = stops[stopIdx]
+            val stopTravelledOffset = offsetConverter.toTravelledPath(stop.pathOffset)
+            if (stop.onStopSignal && entrySignalOffset <= stopTravelledOffset) {
+                criticalPos = stopTravelledOffset + Distance(1)
+                break
+            }
+            if (stopTravelledOffset < criticalPos) {
+                break
+            }
+        }
 
         // find when the train meets the critical location
         return envelope.clampInterpolate(criticalPos)
@@ -379,7 +397,9 @@ fun routingRequirements(
             // the point in the train path at which the zone is released
             val criticalPos = travelPathOffset + rollingStock.length.meters
             // if the zones are never occupied by the train, no requirement is emitted
-            if (criticalPos < Offset.zero()) {
+            // Note: the train is considered starting from a "portal", so "growing" from its start
+            // offset
+            if (travelPathOffset < Offset.zero()) {
                 assert(routeIndex == 0)
                 continue
             }

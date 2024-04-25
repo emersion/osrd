@@ -253,7 +253,7 @@ public class ConflictDetectionTest {
             var conflicts = ConflictsKt.detectConflicts(List.of(
                     convertRequirements(0L, 0.0, simResultAWithStop.train),
                     convertRequirements(1L, 0.0, simResultB.train)));
-            assertTrue(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == ROUTING));
+            assertFalse(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == ROUTING));
             assertFalse(conflicts.stream().anyMatch((conflict) -> conflict.conflictType == SPACING));
         }
     }
