@@ -83,6 +83,7 @@ def make_error(
     error = "" if response.content is None else response.content.decode("utf-8")
     raise FailedTest(
         {
+            "timetable_version": 1,
             "error_type": error_type.value,
             "code": response.status_code,
             "error": error,
@@ -282,7 +283,7 @@ def run(
                 print(e)
                 log_folder.mkdir(exist_ok=True)
                 with open(str(log_folder / f"{i}.json"), "w") as f:
-                    print(json.dumps(e.args[0], indent=4), file=f)
+                    print(json.dumps(e.args[0], indent=4, default=lambda o: "<not serializable>"), file=f)
 
         # Let's reset the scenario (empty timetable) so we can keep a
         # manageable/reproducible state.
