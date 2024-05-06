@@ -246,7 +246,7 @@ public class ConflictDetectionTest {
         // if both trains runs at the same time, but first one has an arrival on stop signal (before PC2 switch)
         // with a stop long enough for the other train to get out, there is no conflict
         {
-            var stop = new TrainStop(500, 600);
+            var stop = new TrainStop(500, 600, true);
             var simResultAWithStop =
                     simpleSim(fullInfra, pathPropsA, chunkPathA, 0, Double.POSITIVE_INFINITY, List.of(stop));
 

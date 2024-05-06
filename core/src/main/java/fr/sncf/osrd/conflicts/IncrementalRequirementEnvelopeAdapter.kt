@@ -2,6 +2,7 @@ package fr.sncf.osrd.conflicts
 
 import fr.sncf.osrd.envelope.EnvelopeInterpolate
 import fr.sncf.osrd.envelope_sim.PhysicsRollingStock
+import fr.sncf.osrd.utils.units.Distance
 import fr.sncf.osrd.utils.units.Offset
 import fr.sncf.osrd.utils.units.meters
 import kotlin.math.max
@@ -16,15 +17,33 @@ class IncrementalRequirementEnvelopeAdapter(
         pathBeginOff: Offset<TravelledPath>,
         pathEndOff: Offset<TravelledPath>
     ): Double {
-        if (envelopeWithStops == null) return Double.POSITIVE_INFINITY
+        if (envelopeWithStops == null) {
+            return Double.POSITIVE_INFINITY
+        }
         val begin = pathBeginOff.distance.meters
         val end = pathEndOff.distance.meters
-        if (max(0.0, begin) >= min(envelopeWithStops.endPos, end))
+        if (max(0.0, begin) >= min(envelopeWithStops.endPos, end)) {
             return Double.POSITIVE_INFINITY // no overlap
+        }
         return envelopeWithStops.maxSpeedInRange(
             max(begin, 0.0),
             min(end, envelopeWithStops.endPos)
         )
+    }
+
+    override fun departureFromStop(stopOffset: Offset<TravelledPath>): Double {
+        if (envelopeWithStops == null) {
+            return Double.POSITIVE_INFINITY
+        }
+        val endPos = envelopeWithStops.endPos
+        if (stopOffset.distance.meters > endPos) {
+            return Double.POSITIVE_INFINITY
+        }
+        var pastStop = (stopOffset.distance + Distance(1)).meters
+        if (pastStop > endPos) {
+            pastStop = endPos
+        }
+        return envelopeWithStops.interpolateTotalTime(pastStop)
     }
 
     override fun arrivalTimeInRange(

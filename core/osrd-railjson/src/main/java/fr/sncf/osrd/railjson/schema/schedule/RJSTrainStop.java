@@ -1,5 +1,6 @@
 package fr.sncf.osrd.railjson.schema.schedule;
 
+import com.squareup.moshi.Json;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import fr.sncf.osrd.railjson.schema.common.RJSTrackLocation;
 
@@ -17,6 +18,9 @@ public class RJSTrainStop {
      */
     @SuppressFBWarnings("UWF_NULL_FIELD")
     public RJSTrackLocation location;
+
+    @Json(name = "on_stop_signal")
+    public boolean onStopSignal;
 
     /** Stop duration */
     public double duration;

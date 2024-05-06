@@ -296,6 +296,7 @@ private class InfraExplorerImpl(
                         mutableStaticIdxArrayListOf(block),
                         containsStart = startPath,
                         containsEnd = endPath,
+                        stops = listOf(),
                         travelledPathBegin =
                             if (startPath) firstLocation!!.offset.distance else Distance.ZERO,
                         travelledPathEnd = Distance.ZERO

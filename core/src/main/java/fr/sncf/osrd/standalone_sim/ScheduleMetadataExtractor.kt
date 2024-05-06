@@ -177,6 +177,9 @@ fun run(
         PathFragment(
             routePath,
             blockPath,
+            schedule.stops.map {
+                PathFragmentStop(Offset(it.position.meters + startOffset), it.onStopSignal)
+            },
             containsStart = true,
             containsEnd = true,
             startOffset,
@@ -299,10 +302,8 @@ fun routingRequirements(
         for (i in 0 until zoneCount) zoneStates.add(ZoneStatus.CLEAR)
 
         // TODO: the complexity of finding route set deadlines is currently n^2 of the number of
-        // blocks
-        //   in the path. it can be improved upon by only simulating blocks which can contain the
-        // route's
-        //   limiting signal
+        //   blocks in the path. it can be improved upon by only simulating blocks which can
+        //   contain the route's limiting signal
         val simulatedSignalStates =
             simulator.evaluate(
                 rawInfra,
