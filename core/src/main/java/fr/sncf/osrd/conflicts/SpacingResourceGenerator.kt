@@ -362,13 +362,13 @@ class SpacingRequirementAutomaton(
         val spacingRequirements =
             pendingRequirements
                 .mapIndexed { index, pendingSpacingRequirement ->
-                    val serializedReq = postProcessRequirement(pendingSpacingRequirement)
+                    val spacingRequirement = postProcessRequirement(pendingSpacingRequirement)
                     if (
                         index < firstIncompleteReq &&
-                            (serializedReq == null || !serializedReq.isComplete)
+                            (spacingRequirement == null || !spacingRequirement.isComplete)
                     )
                         firstIncompleteReq = index
-                    serializedReq
+                    spacingRequirement
                 }
                 .filterNotNull()
 
