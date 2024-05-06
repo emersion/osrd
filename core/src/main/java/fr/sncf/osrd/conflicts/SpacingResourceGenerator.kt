@@ -63,7 +63,7 @@ class SpacingRequirementAutomaton(
     // requirements that need to be returned on the next successful pathUpdate
     private val pendingRequirements = ArrayDeque<PendingSpacingRequirement>()
 
-    private var nextProcessedStop = 0
+    private var nextStopToProcess = 0
     private var processedStops = ArrayDeque<ProcessedStop>()
 
     private fun registerPathExtension() {
@@ -103,11 +103,11 @@ class SpacingRequirementAutomaton(
 
             val blockEndOffset = incrementalPath.getBlockEndOffset(blockIndex)
             val nextZoneIdx = incrementalPath.getBlockEndZone(blockIndex)
-            while (incrementalPath.stopCount > nextProcessedStop) {
-                val stopOffset = incrementalPath.getStopOffset(nextProcessedStop)
+            while (incrementalPath.stopCount > nextStopToProcess) {
+                val stopOffset = incrementalPath.getStopOffset(nextStopToProcess)
                 if (stopOffset >= blockEndOffset) break
-                if (!incrementalPath.isStopOnClosedSignal(nextProcessedStop)) {
-                    nextProcessedStop++
+                if (!incrementalPath.isStopOnClosedSignal(nextStopToProcess)) {
+                    nextStopToProcess++
                     continue
                 }
                 processedStops.add(
@@ -117,7 +117,7 @@ class SpacingRequirementAutomaton(
                         nextZoneIdx,
                     )
                 )
-                nextProcessedStop++
+                nextStopToProcess++
             }
         }
         nextProcessedBlock = incrementalPath.blockCount
