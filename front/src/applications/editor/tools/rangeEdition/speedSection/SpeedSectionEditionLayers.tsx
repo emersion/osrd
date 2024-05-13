@@ -66,7 +66,7 @@ export const SpeedSectionEditionLayers = () => {
     else if (hoveredItem?.itemType) {
       res.push(hoveredItem.track.properties.id);
     } else if (interactionState.type === 'selectSwitch') {
-      res.push(...selectedSwitches);
+      res.push(...Object.keys(selectedSwitches));
     }
 
     return res;

@@ -75,25 +75,10 @@ function getRangeEditionTool<T extends EditorRange>({
       interactionState: { type: 'idle' } as InteractionState,
       trackSectionsCache: {},
       optionsState: { type: 'idle' } as OptionsStateType,
-      selectedSwitches: [],
+      selectedSwitches: {},
       highlightedRoutes: [],
       routesTrackRanges: {},
     };
-    // if (id === 'SpeedSection') {
-    //   return {
-    //     ...common,
-    //     rangeType: 'speedSection',
-    //     selectedSwitches: [] as string[],
-    //     highlightedRoutes: [] as SpeedSectionEntity[],
-    //   };
-    // }
-    // if (id === 'Electrification') {
-    //   return {
-    //     ...common,
-    //     rangeType: 'electrification',
-    //   };
-    // }
-    // return common;
   }
 
   const objectTypeEdition = getObjTypeEdition(layersEntity.objType);
@@ -227,13 +212,22 @@ function getRangeEditionTool<T extends EditorRange>({
 
       if (interactionState.type === 'selectSwitch') {
         if (feature && feature.sourceLayer === 'switches') {
-          if (selectedSwitches.includes(feature.properties.id)) {
+          if (Object.keys(selectedSwitches).includes(feature.properties.id)) {
             setState({
-              selectedSwitches: selectedSwitches.filter(
-                (switchId: string) => switchId !== feature.properties.id
+              selectedSwitches: Object.fromEntries(
+                Object.entries(selectedSwitches).filter(([key]) => key !== feature.properties.id)
               ),
             });
-          } else setState({ selectedSwitches: [...selectedSwitches, feature.properties.id] });
+          } else
+            setState({
+              selectedSwitches: {
+                ...selectedSwitches,
+                [feature.properties.id]: {
+                  position: null,
+                  type: feature.properties.switch_type,
+                },
+              },
+            });
         }
       } else if (isOnModeMove(interactionState.type)) {
         if (interactionState.type === 'moveRangeExtremity' && entity.properties.track_ranges) {

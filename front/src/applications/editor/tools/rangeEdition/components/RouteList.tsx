@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import CheckboxRadioSNCF from 'common/BootstrapSNCF/CheckboxRadioSNCF';
-import EyeToggle from 'common/EyeToggle';
+import EyeToggle from 'common/EyeToggle/EyeToggle';
 
 type RouteListProps = {
   switchesRouteCandidates: string[];
@@ -22,15 +22,9 @@ function RouteList({
 }: RouteListProps) {
   const { t } = useTranslation();
 
-  const handleRouteSelected = (route: string) => () => {
-    onRouteSelect(route);
-  };
-  const handleRouteHighlighted = (route: string) => () => {
-    onRouteHighlight(route);
-  };
   return (
     <div className="my-3 w-100">
-      <label htmlFor="route-select">{t('Editor.tools.speed-edition.select-route')}</label>
+      <h4 className="pb-0">{t('Editor.tools.speed-edition.select-route')}</h4>
       {switchesRouteCandidates.map((route) => (
         <div key={route} className="d-flex align-items-center justify-content-between w-75">
           {route}
@@ -40,29 +34,15 @@ function RouteList({
               id={`route-checkbox-${route}`}
               type="checkbox"
               checked={selectedRoutes.includes(route)}
-              onClick={handleRouteSelected(route)}
+              onChange={() => onRouteSelect(route)}
             />
             <EyeToggle
               checked={highlightedRoutes.includes(route)}
-              onClick={handleRouteHighlighted(route)}
+              onClick={() => onRouteHighlight(route)}
             />
           </div>
         </div>
       ))}
-
-      {/* <select
-        name="route-select"
-        className="bg-white"
-        onChange={(e) => {
-          onRouteSelected(e.target.value);
-        }}
-      >
-        {switchesRouteCandidates.map((route) => (
-          <option key={route} value={route}>
-            {route}
-          </option>
-        ))}
-      </select> */}
     </div>
   );
 }

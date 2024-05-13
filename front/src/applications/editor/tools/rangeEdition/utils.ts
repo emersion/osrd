@@ -14,6 +14,7 @@ import {
   getTrackSectionEntityFromNearestPoint,
 } from 'applications/editor/tools/utils';
 import type { PartialOrReducer } from 'applications/editor/types';
+import type { GetInfraByInfraIdRoutesTrackRangesApiResponse } from 'common/api/osrdEditoastApi';
 import { getNearestPoint } from 'utils/mapHelper';
 
 import type {
@@ -24,6 +25,7 @@ import type {
   PslSignFeature,
   PslSignInformation,
   RangeEditionState,
+  RouteTrackRanges,
   SpeedSectionEntity,
   SpeedSectionPslEntity,
   TrackRangeExtremityFeature,
@@ -351,3 +353,23 @@ export const getObjTypeAction = (objType: 'SpeedSection' | 'Electrification') =>
 
 export const isNew = (entity: SpeedSectionEntity | ElectrificationEntity) =>
   entity.properties.id === NEW_ENTITY_ID;
+
+export const makeTrackRangesByRouteName = (
+  trackRangesResults: GetInfraByInfraIdRoutesTrackRangesApiResponse,
+  routes: string[]
+): RouteTrackRanges =>
+  trackRangesResults.reduce((acc, cur, index) => {
+    if (cur.type === 'Computed') {
+      const renamedFieldsTrackRanges = cur.track_ranges.map((trackRange) => {
+        const { begin, end, track } = trackRange;
+        return {
+          begin,
+          end,
+          track,
+          applicable_directions: trackRange.direction,
+        };
+      });
+      return { ...acc, [routes[index]]: renamedFieldsTrackRanges };
+    }
+    return acc;
+  }, {});

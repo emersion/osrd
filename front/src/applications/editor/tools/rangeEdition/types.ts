@@ -146,22 +146,6 @@ export type PslSignInformation =
   | { signType: PSL_SIGN_TYPES.ANNOUNCEMENT | PSL_SIGN_TYPES.R; signIndex: number }
   | { signType: PSL_SIGN_TYPES.Z };
 
-// export type SpeedSectionSpecificState = {
-//   rangeType: 'speedSection';
-//   selectedSwitches: string[];
-//   highlightedRoutes: SpeedSectionEntity[];
-// };
-
-// export type ElectrificationSpecificState = {
-//   rangeType: 'electrification';
-// };
-
-// type BusinessSpecificState<E extends EditorRange> = E extends SpeedSectionEntity
-//   ? SpeedSectionSpecificState
-//   : E extends ElectrificationEntity
-//     ? ElectrificationSpecificState
-//     : never;
-
 export type HoveredItem =
   | null
   | HoveredExtremityState
@@ -182,8 +166,23 @@ export type RangeEditionState<E extends EditorRange> = CommonToolState & {
   hoveredItem: HoveredItem;
   interactionState: InteractionState;
   trackSectionsCache: Record<string, TrackState>;
+  selectedSwitches: SwitchSelection;
   optionsState?: OptionsStateType;
-  selectedSwitches: string[];
   highlightedRoutes: string[];
   routesTrackRanges: RouteTrackRanges;
+};
+
+export type SwitchPosition = {
+  [key: string]: string | null;
+};
+
+export type AvailableSwitchPositions = {
+  [key: string]: string[];
+};
+
+export type SwitchSelection = {
+  [key: string]: {
+    position: string | null;
+    type: string;
+  };
 };
