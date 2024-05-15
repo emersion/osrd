@@ -1,21 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 
 import cx from 'classnames';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
-import { osrdEditoastApi } from 'common/api/osrdEditoastApi';
 import type { SearchResultItemOperationalPoint } from 'common/api/osrdEditoastApi';
 import CheckboxRadioSNCF from 'common/BootstrapSNCF/CheckboxRadioSNCF';
 import InputSNCF from 'common/BootstrapSNCF/InputSNCF';
 import { onResultSearchClick } from 'common/Map/utils';
-import { useInfraID } from 'common/osrdContext';
 import type { Viewport } from 'reducers/map';
 import { getMap } from 'reducers/map/selectors';
 import { useAppDispatch } from 'store';
-import { useDebounce } from 'utils/helpers';
 
-const mainOperationalPointsCHCodes = ['', '00', 'BV'];
+import useSearchOperationalPoint from './useSearchOperationalPoint';
 
 type MapSearchOperationalPointProps = {
   updateExtViewport: (viewport: Partial<Viewport>) => void;
@@ -27,63 +24,21 @@ const MapSearchOperationalPoint = ({
   closeMapSearchPopUp,
 }: MapSearchOperationalPointProps) => {
   const map = useSelector(getMap);
-  const [searchResults, setSearchResults] = useState<SearchResultItemOperationalPoint[]>([]);
-  const [chCodeFilter, setChCodeFilter] = useState('');
-  const [mainOperationalPointsOnly, setMainOperationalPointsOnly] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const infraID = useInfraID();
 
-  const [postSearch] = osrdEditoastApi.endpoints.postSearch.useMutation();
+  const [mainOperationalPointsOnly, setMainOperationalPointsOnly] = useState(false);
+
+  const {
+    searchTerm,
+    chCodeFilter,
+    searchResults,
+    sortedResults,
+    setSearchTerm,
+    setChCodeFilter,
+    setSearchResults,
+  } = useSearchOperationalPoint({ mainOperationalPointsOnly });
   const dispatch = useAppDispatch();
 
   const { t } = useTranslation(['map-search']);
-
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  const sortedResults = useMemo(
-    () =>
-      [...searchResults]
-        .map((result) => ({
-          ...result,
-          // remove CH Code information when it's a main operational point (=== "BV" or "00") to ensure it'll be on top of search results
-          ch: mainOperationalPointsCHCodes.includes(result.ch) ? '' : result.ch ?? '',
-        }))
-        // Begin to filter with main operational points (CH code = ''), if not checked, filter on chCode input field
-        .filter((result) => {
-          if (mainOperationalPointsOnly) return result.ch === '';
-          return chCodeFilter !== ''
-            ? result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase())
-            : true;
-        })
-        .sort((a, b) => a.name.localeCompare(b.name) || a.ch.localeCompare(b.ch)),
-    [searchResults, chCodeFilter, mainOperationalPointsOnly]
-  );
-
-  const searchOperationalPoints = async () => {
-    const isSearchingByTrigram = !Number.isInteger(+debouncedSearchTerm) && searchTerm.length < 4;
-    const searchQuery = isSearchingByTrigram
-      ? // We have to test for op names that goes under 4 letters too
-        ['or', ['=i', ['trigram'], debouncedSearchTerm], ['=i', ['name'], debouncedSearchTerm]]
-      : [
-          'or',
-          ['search', ['name'], debouncedSearchTerm],
-          ['like', ['to_string', ['uic']], `%${debouncedSearchTerm}%`],
-        ];
-    const payload = {
-      object: 'operationalpoint',
-      query: ['and', searchQuery, infraID !== undefined ? ['=', ['infra_id'], infraID] : true],
-    };
-
-    try {
-      const results = await postSearch({
-        searchPayload: payload,
-        pageSize: 101,
-      }).unwrap();
-      setSearchResults(results as SearchResultItemOperationalPoint[]);
-    } catch (error) {
-      setSearchResults([]);
-    }
-  };
 
   const onResultClick = (result: SearchResultItemOperationalPoint) => {
     onResultSearchClick({
@@ -95,14 +50,6 @@ const MapSearchOperationalPoint = ({
     });
     closeMapSearchPopUp();
   };
-
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      searchOperationalPoints();
-    } else if (searchResults.length !== 0) {
-      setSearchResults([]);
-    }
-  }, [debouncedSearchTerm]);
 
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
 
