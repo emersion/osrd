@@ -11,6 +11,7 @@ import Study from 'applications/operationalStudies/views/Study';
 import HomeMap from 'applications/referenceMap/Home';
 import HomeRollingStockEditor from 'applications/rollingStockEditor/Home';
 import HomeStdcm from 'applications/stdcm/Home';
+import HomeStdcmV2 from 'applications/stdcmV2/Home';
 import ErrorBoundary from 'common/ErrorBoundary';
 import { Loader } from 'common/Loaders';
 import NotificationsState from 'common/Notifications';
@@ -68,6 +69,18 @@ const router = createBrowserRouter([
       {
         path: '*',
         element: <HomeStdcm />,
+      },
+    ],
+  },
+  {
+    path: 'stdcmV2/*',
+    element: (
+      <OsrdContextLayout slice={stdcmConfSlice} selectors={stdcmConfSelectors} mode={MODES.stdcm} />
+    ),
+    children: [
+      {
+        path: '*',
+        element: <HomeStdcmV2 />,
       },
     ],
   },
