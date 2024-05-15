@@ -6,13 +6,13 @@ import { useDebounce } from 'utils/helpers';
 
 const mainOperationalPointsCHCodes = ['', '00', 'BV'];
 
-export default function useSearchOperationalPoint({
-  debounceDelay = 150,
-  mainOperationalPointsOnly = false,
-}: {
-  debounceDelay?: number;
-  mainOperationalPointsOnly?: boolean;
-}) {
+type SearchOperationalPoint = {
+  debounceDelay: number;
+  mainOperationalPointsOnly: false;
+};
+
+export default function useSearchOperationalPoint(props: SearchOperationalPoint) {
+  const { debounceDelay = 150, mainOperationalPointsOnly = false } = props;
   const infraID = useInfraID();
   const [searchTerm, setSearchTerm] = useState('');
   const [chCodeFilter, setChCodeFilter] = useState('');
@@ -62,7 +62,7 @@ export default function useSearchOperationalPoint({
             ? result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase())
             : true;
         })
-        .sort((a, b) => a.name.localeCompare(b.name) || a.ch.localeCompare(b.ch)),
+        .sort((a, b) => a.name.localeCompare(b.name) || a.ch?.localeCompare(b.ch)),
     [searchResults, chCodeFilter, mainOperationalPointsOnly]
   );
 
