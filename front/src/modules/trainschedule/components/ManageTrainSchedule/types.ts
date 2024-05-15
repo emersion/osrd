@@ -23,6 +23,8 @@ export type SuggestedOP = {
   arrival?: string | null;
   locked?: boolean;
   stopFor?: string | null;
+  theoreticalMargin?: string;
+  onStopSignal?: boolean;
   // Metadatas given by ManageTrainScheduleMap click event to add origin/destination/via
   metadata?: {
     lineCode: number;
@@ -30,6 +32,11 @@ export type SuggestedOP = {
     trackName: string;
     trackNumber: number;
   };
+};
+
+export type Margins = {
+  bondaries: string[];
+  values: string[];
 };
 
 export type ValidConfig = {

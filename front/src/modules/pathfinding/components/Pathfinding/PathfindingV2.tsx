@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useMemo } from 'react';
 
 import { Alert, CheckCircle, Stop } from '@osrd-project/ui-icons';
 import cx from 'classnames';
@@ -87,7 +87,6 @@ export function reducer(state: PathfindingState, action: PathfindingActionV2): P
       };
     }
     case 'PATHFINDING_PARAM_CHANGED':
-    case 'VIAS_CHANGED':
     case 'INFRA_CHANGED': {
       if (
         !action.params ||
@@ -192,6 +191,8 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
       pollingInterval: !isInfraLoaded ? 1000 : undefined,
     }
   );
+  const pathfindingAllReadyInitialized = useMemo(() => infra?.state === 'CACHED', []);
+
   const [reloadInfra] = osrdEditoastApi.endpoints.postInfraByInfraIdLoad.useMutation();
 
   const {
@@ -225,14 +226,16 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
         case 'CACHED': {
           setIsInfraLoaded(true);
           if (isInfraError) setIsInfraError(false);
-          pathfindingDispatch({
-            type: 'INFRA_CHANGED',
-            params: {
-              origin,
-              destination,
-              rollingStock,
-            },
-          });
+          if (!pathfindingAllReadyInitialized) {
+            pathfindingDispatch({
+              type: 'INFRA_CHANGED',
+              params: {
+                origin,
+                destination,
+                rollingStock,
+              },
+            });
+          }
           break;
         }
         default:
@@ -245,19 +248,6 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
     setPathProperties(undefined);
     return getPathfindingQuery({ infraId, rollingStock, origin, destination, pathSteps });
   };
-
-  useEffect(() => {
-    if (isPathfindingInitialized) {
-      pathfindingDispatch({
-        type: 'VIAS_CHANGED',
-        params: {
-          origin,
-          destination,
-          rollingStock,
-        },
-      });
-    }
-  }, [vias]);
 
   useEffect(() => {
     if (isInfraError) {
@@ -308,15 +298,13 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
                 pathfindingResult.length
               );
 
-              const updatedSuggestedOPs = insertViasInOPs(
-                suggestedOperationalPoints,
-                pathStepsWihPosition
-              );
+              const allVias = insertViasInOPs(suggestedOperationalPoints, pathStepsWihPosition);
 
               setPathProperties({
                 electrifications,
                 geometry,
-                suggestedOperationalPoints: updatedSuggestedOPs,
+                suggestedOperationalPoints,
+                allVias,
                 length: pathfindingResult.length,
               });
 

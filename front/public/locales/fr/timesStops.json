@@ -5,5 +5,6 @@
   "departure_time": "Heure de départ",
   "reception_on_closed_signal": "Réception sur signal fermé",
   "theoretical_margin": "Marge théorique",
-  "theoretical_margin_placeholder": "% ou min/km"
+  "theoretical_margin_placeholder": "% ou min/km",
+  "waypoint": "Vias {{id}}"
 }

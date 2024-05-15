@@ -5,5 +5,6 @@
   "departure_time": "Departure Time",
   "reception_on_closed_signal": "Reception on Closed Signal",
   "theoretical_margin": "Theoretical Margin",
-  "theoretical_margin_placeholder": "% or min/km"
+  "theoretical_margin_placeholder": "% or min/km",
+  "waypoint": "Waypoint {{id}}"
 }

@@ -100,15 +100,13 @@ export const useSetupItineraryForTrainUpdate = (
                 pathfindingResult.length
               );
               // TODO TS2 : update operational_points property with vias added on map included in trainSchedule.path
-              const updatedSuggestedOPs = insertViasInOPs(
-                suggestedOperationalPoints,
-                formatedPathSteps
-              );
+              const allVias = insertViasInOPs(suggestedOperationalPoints, formatedPathSteps);
 
               setPathProperties({
                 electrifications,
                 geometry,
-                suggestedOperationalPoints: updatedSuggestedOPs,
+                suggestedOperationalPoints,
+                allVias,
                 length: pathfindingResult.length,
               });
 

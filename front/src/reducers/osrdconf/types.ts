@@ -87,7 +87,9 @@ export type PathStep = (
   deleted?: boolean;
   arrival?: string | null;
   locked?: boolean;
-  stop_for?: string | null;
+  stopFor?: string | null;
+  theoreticalMargin?: string;
+  onStopSignal?: boolean;
   /** Distance from the beginning of the path in mm */
   positionOnPath?: number;
   coordinates: Position;
