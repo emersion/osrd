@@ -123,10 +123,12 @@ fun runScheduleMetadataExtractor(
             envelopeAdapter,
             incrementalPath
         )
+    val pathStops = schedule.map { PathStop(it.pathOffset, it.onStopSignal) }
     incrementalPath.extend(
         PathFragment(
             routePath,
             blockPath,
+            pathStops,
             containsStart = true,
             containsEnd = true,
             startOffset,
@@ -143,6 +145,7 @@ fun runScheduleMetadataExtractor(
             routePath,
             blockPath,
             detailedBlockPath,
+            pathStops,
             loadedSignalInfra,
             blockInfra,
             envelopeWithStops,
