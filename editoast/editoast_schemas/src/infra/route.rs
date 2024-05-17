@@ -15,6 +15,7 @@ use crate::primitives::ObjectType;
 
 editoast_common::schemas! {
     Route,
+    OrderedRouteElement,
 }
 
 #[derive(Debug, Derivative, Clone, Deserialize, Serialize, PartialEq, Eq, ToSchema)]
@@ -45,8 +46,15 @@ impl OSRDIdentified for Route {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, ToSchema)]
+pub enum OrderedRouteElement {
+    TrackRange(DirectionalTrackRange),
+    Switch(String),
+}
+
 #[derive(Debug, Clone)]
 pub struct RoutePath {
     pub track_ranges: Vec<DirectionalTrackRange>,
     pub switches_directions: HashMap<Identifier, Identifier>,
+    pub ordered_route_elements: Vec<OrderedRouteElement>,
 }

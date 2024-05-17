@@ -97,9 +97,12 @@ async fn get_routes_from_waypoint(
 }
 
 #[derive(Debug, Clone, Serialize, PartialEq, ToSchema)]
-#[serde(deny_unknown_fields, tag = "type", content = "track_ranges")]
+#[serde(deny_unknown_fields, tag = "type")]
 enum RouteTrackRangesResult {
-    Computed(Vec<DirectionalTrackRange>),
+    Computed {
+        track_ranges: Vec<DirectionalTrackRange>,
+        ordered_route_elements: Vec<OrderedRouteElement>,
+    },
     NotFound,
     CantComputePath,
 }
@@ -151,7 +154,10 @@ async fn get_routes_track_ranges<'a>(
                 let route = route.unwrap_route();
                 let route_path = infra_cache.compute_track_ranges_on_route(route, &graph);
                 if let Some(route_path) = route_path {
-                    RouteTrackRangesResult::Computed(route_path.track_ranges)
+                    RouteTrackRangesResult::Computed {
+                        track_ranges: route_path.track_ranges,
+                        ordered_route_elements: route_path.ordered_route_elements,
+                    }
                 } else {
                     RouteTrackRangesResult::CantComputePath
                 }

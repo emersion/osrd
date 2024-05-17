@@ -51,6 +51,7 @@ pub use operational_point::OperationalPointIdentifierExtension;
 pub use operational_point::OperationalPointPart;
 pub use railjson::RailJson;
 pub use railjson::RAILJSON_VERSION;
+pub use route::OrderedRouteElement;
 pub use route::Route;
 pub use route::RoutePath;
 pub use side::Side;

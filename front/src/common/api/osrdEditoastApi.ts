@@ -1222,6 +1222,7 @@ export type PostInfraByInfraIdRoutesNodesApiArg = {
 export type GetInfraByInfraIdRoutesTrackRangesApiResponse =
   /** status 200 Foreach route, all the track ranges in it or an error */ (
     | {
+        ordered_route_elements: OrderedRouteElement[];
         track_ranges: DirectionalTrackRange[];
         type: 'Computed';
       }
@@ -2294,11 +2295,13 @@ export type PathfindingInput = {
   ending: PathfindingTrackLocationInput;
   starting: PathfindingTrackLocationInput;
 };
-export type TrackOffset = {
-  /** Offset in mm */
-  offset: number;
-  track: string;
-};
+export type OrderedRouteElement =
+  | {
+      TrackRange: DirectionalTrackRange;
+    }
+  | {
+      Switch: string;
+    };
 export type LightModeEffortCurves = {
   is_electric: boolean;
 };

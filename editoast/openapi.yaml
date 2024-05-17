@@ -4230,6 +4230,20 @@ components:
       - track
       - position
       type: object
+    OrderedRouteElement:
+      oneOf:
+      - properties:
+          TrackRange:
+            $ref: '#/components/schemas/DirectionalTrackRange'
+        required:
+        - TrackRange
+        type: object
+      - properties:
+          Switch:
+            type: string
+        required:
+        - Switch
+        type: object
     Ordering:
       enum:
       - NameAsc
@@ -9947,6 +9961,10 @@ paths:
                 items:
                   oneOf:
                   - properties:
+                      ordered_route_elements:
+                        items:
+                          $ref: '#/components/schemas/OrderedRouteElement'
+                        type: array
                       track_ranges:
                         items:
                           $ref: '#/components/schemas/DirectionalTrackRange'
@@ -9956,8 +9974,9 @@ paths:
                         - Computed
                         type: string
                     required:
-                    - type
                     - track_ranges
+                    - ordered_route_elements
+                    - type
                     type: object
                   - properties:
                       type:
