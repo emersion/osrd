@@ -50,8 +50,8 @@ function SelectSNCF<T extends string | SelectOptionObject>({
         className={cx(className, sm && 'sm')}
         value={isString(value) ? value : value?.id}
       >
-        {options.map((option) => (
-          <option key={getOptionValue(option)} value={getOptionValue(option)}>
+        {options.map((option, index) => (
+          <option key={`${index}-${getOptionValue(option)}`} value={getOptionValue(option)}>
             {getOptionLabel(option)}
           </option>
         ))}

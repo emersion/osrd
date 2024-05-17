@@ -122,8 +122,8 @@ export default function useFilterRollingStock({
     }, 0);
   };
 
-  const searchMateriel = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, text: e.target.value.toLowerCase() });
+  const searchMateriel = (value: string) => {
+    setFilters({ ...filters, text: value.toLowerCase() });
     if (setIsLoading) setIsLoading(true);
   };
   // TODO: investigate if the main condition does not have bad side effects

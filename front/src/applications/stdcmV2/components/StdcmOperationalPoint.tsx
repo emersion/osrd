@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 
+import { Select, type SelectProps } from '@osrd-project/ui-core';
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
+import type { SearchResultItemOperationalPoint } from 'common/api/osrdEditoastApi';
 import SelectSNCF from 'common/BootstrapSNCF/SelectSNCF';
 import useSearchOperationalPoint from 'common/Map/Search/useSearchOperationalPoint';
 import type { PathStep } from 'reducers/osrdconf/types';
@@ -36,10 +38,8 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
     console.log('chCode changed -->', chCodeFilter);
   }, [chCodeFilter]);
 
-  // console.log('sortedResults -- ', sortedResults);
-  // const testChOptions = ['', ...compact(sortedResults.map((result) => result.ch)).sort()];
   console.log('chcode : ', chCodeFilter);
-  console.log('testChOptions -- ', chOptions);
+  console.log('ChOptions -- ', chOptions);
 
   useEffect(() => {
     if (searchTerm.trim().length === 0) {
@@ -50,32 +50,34 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
 
   return (
     <div className="flex">
-      <StdcmSuggestions
-        id="ci"
-        label="CI"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-        }}
-        options={sortedResults.map((result) => ({
-          value: result,
-          label: `${result.trigram} ${result.name} ${result.ch} ${result.ci}`,
-          ...result,
-        }))}
-        onSelectSuggestion={(option) => {
-          dispatch(
-            updatePoint({
-              operational_point: option.name,
-              name: option.name,
-              ch: option.ch,
-              id: option.obj_id,
-              coordinates: option.geographic.coordinates,
-            })
-          );
-          setSearchTerm(option.name);
-          setChCodeFilter(option.ch);
-        }}
-      />
+      <div className="col-8">
+        <StdcmSuggestions
+          id="ci"
+          label="CI"
+          value={searchTerm}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setSearchTerm(e.target.value);
+          }}
+          options={sortedResults.map((result: SearchResultItemOperationalPoint) => ({
+            value: result,
+            label: `${result.trigram} ${result.name} ${result.ch} ${result.ci}`,
+            ...result,
+          }))}
+          onSelectSuggestion={(option) => {
+            dispatch(
+              updatePoint({
+                operational_point: option.name,
+                name: option.name,
+                ch: option.ch,
+                id: option.obj_id,
+                coordinates: option.geographic.coordinates,
+              })
+            );
+            setSearchTerm(option.name);
+            setChCodeFilter(option.ch);
+          }}
+        />
+      </div>
 
       <div className="w-100 py-3 col-4">
         <SelectSNCF
@@ -89,6 +91,16 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
             setChCodeFilter(value || '');
           }}
         />
+        {/* <Select
+          id="ch"
+          label="CH"
+          value={chCodeFilter}
+          options={chOptions}
+          onChange={(e) => {
+            console.log('value selected : ', e.target.value);
+            setChCodeFilter(e.target.value);
+          }}
+        /> */}
       </div>
     </div>
   );

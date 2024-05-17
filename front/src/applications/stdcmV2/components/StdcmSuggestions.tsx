@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Input, type InputProps } from '@osrd-project/ui-core';
 import { isEmpty } from 'lodash';
 
-import { type SearchResultItemOperationalPoint } from 'common/api/osrdEditoastApi';
 import SelectImprovedSNCF, {
   type SelectOptionObject,
 } from 'common/BootstrapSNCF/SelectImprovedSNCF';
@@ -20,18 +19,25 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
 }: SuggestionsProps<T>) {
   const [isSelectVisible, setIsSelectVisible] = useState(!isEmpty(options));
 
+  const [isFocused, setIsFocused] = useState(false);
+
   useEffect(() => {
-    setIsSelectVisible(!isEmpty(options));
-  }, [options]);
+    if (isFocused) {
+      setIsSelectVisible(!isEmpty(options));
+    }
+  }, [options, isFocused]);
 
   return (
-    <div>
-      <Input {...rest} />
+    <>
+      <Input {...rest} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} />
       {isSelectVisible && (
         <div className="selector-select">
           <SelectImprovedSNCF
             options={options}
-            onChange={onSelectSuggestion}
+            onChange={(option) => {
+              onSelectSuggestion(option);
+              setIsSelectVisible(false);
+            }}
             setSelectVisibility={setIsSelectVisible}
             withSearch={false}
             noTogglingHeader
@@ -40,6 +46,6 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
           />
         </div>
       )}
-    </div>
+    </>
   );
 }

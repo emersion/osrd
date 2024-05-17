@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 
+import { compact } from 'lodash';
+
 import { type SearchResultItemOperationalPoint, osrdEditoastApi } from 'common/api/osrdEditoastApi';
 import { useInfraID } from 'common/osrdContext';
 import { useDebounce } from 'utils/helpers';
-import { compact } from 'lodash';
 
 const mainOperationalPointsCHCodes = ['', '00', 'BV'];
 
@@ -21,7 +22,7 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     searchTerm: initialSearchTerm = '',
     chCodeFilter: initialChCodeFilter = '',
   } = props || {};
-  const infraID = 5; // useInfraID();
+  const infraID = 3; // useInfraID();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [chCodeFilter, setChCodeFilter] = useState(initialChCodeFilter);
   const [searchResults, setSearchResults] = useState<SearchResultItemOperationalPoint[]>([]);
@@ -49,8 +50,6 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
         searchPayload: payload,
         pageSize: 101,
       }).unwrap();
-      console.log('payload : ', payload.query)
-      console.log('results -- ', results)
       setSearchResults(results as SearchResultItemOperationalPoint[]);
     } catch (error) {
       setSearchResults([]);
@@ -76,7 +75,17 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     [searchResults, chCodeFilter, mainOperationalPointsOnly]
   );
 
-  const chOptions = useMemo(() => ['', ...compact(sortedResults.map((result) => result.ch)).sort()], [searchResults])
+  // const chOptions = useMemo(
+  //   () => [
+  //     ...compact(sortedResults.sort().map((result) => ({ value: result.ch, label: result.ch }))),
+  //   ],
+  //   [searchResults]
+  // );
+
+  const chOptions = useMemo(
+    () => ['', ...compact(sortedResults.sort().map((result) => result.ch))],
+    [searchResults]
+  );
 
   useEffect(() => {
     if (debouncedSearchTerm) {
