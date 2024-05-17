@@ -800,7 +800,7 @@ const testCommonConfReducers = (slice: OperationalStudiesConfSlice | StdcmConfSl
         track: '60ca8dda-6667-11e3-81ff-01f464e0362d',
         offsetOnTrack: 426.443,
         positionOnPath: 200,
-        stopFor: 'PT5M',
+        stop_for: 'PT5M',
         coordinates: [47.99542250806296, 0.1918181738752042],
       };
 

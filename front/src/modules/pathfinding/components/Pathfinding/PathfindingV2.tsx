@@ -23,7 +23,7 @@ import type { PathfindingActionV2, PathfindingState } from 'modules/pathfinding/
 import {
   formatSuggestedOperationalPoints,
   getPathfindingQuery,
-  insertViasInOPs,
+  upsertViasInOPs,
 } from 'modules/pathfinding/utils';
 import { useStoreDataForRollingStockSelector } from 'modules/rollingStock/components/RollingStockSelector/useStoreDataForRollingStockSelector';
 import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSchedule/types';
@@ -87,6 +87,7 @@ export function reducer(state: PathfindingState, action: PathfindingActionV2): P
       };
     }
     case 'PATHFINDING_PARAM_CHANGED':
+    case 'VIAS_CHANGED':
     case 'INFRA_CHANGED': {
       if (
         !action.params ||
@@ -250,6 +251,19 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
   };
 
   useEffect(() => {
+    if (isPathfindingInitialized) {
+      pathfindingDispatch({
+        type: 'VIAS_CHANGED',
+        params: {
+          origin,
+          destination,
+          rollingStock,
+        },
+      });
+    }
+  }, [vias]);
+
+  useEffect(() => {
     if (isInfraError) {
       reloadInfra({ infraId: infraId as number }).unwrap();
       setIsInfraLoaded(false);
@@ -298,7 +312,7 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
                 pathfindingResult.length
               );
 
-              const allVias = insertViasInOPs(suggestedOperationalPoints, pathStepsWihPosition);
+              const allVias = upsertViasInOPs(suggestedOperationalPoints, pathStepsWihPosition);
 
               setPathProperties({
                 electrifications,

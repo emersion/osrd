@@ -23,6 +23,7 @@ export const formatSuggestedOperationalPoints = (
     name: op.extensions?.identifier?.name,
     uic: op.extensions?.identifier?.uic,
     ch: op.extensions?.sncf?.ch,
+    kp: op.part.extensions?.sncf?.kp,
     chLongLabel: op.extensions?.sncf?.ch_long_label,
     chShortLabel: op.extensions?.sncf?.ch_short_label,
     ci: op.extensions?.sncf?.ci,
@@ -84,7 +85,8 @@ export const getPathfindingQuery = ({
   return null;
 };
 
-export const insertViasInOPs = (ops: SuggestedOP[], pathSteps: PathStep[]): SuggestedOP[] => {
+// ! add path_items_positions
+export const upsertViasInOPs = (ops: SuggestedOP[], pathSteps: PathStep[]): SuggestedOP[] => {
   let updatedOPs = [...ops];
   const vias = pathSteps.slice(1, -1);
   if (vias.length > 0) {
@@ -105,6 +107,19 @@ export const insertViasInOPs = (ops: SuggestedOP[], pathSteps: PathStep[]): Sugg
           (op) => step.positionOnPath && op.positionOnPath >= step.positionOnPath
         );
         updatedOPs = addElementAtIndex(updatedOPs, index, formattedStep);
+      } else if ('uic' in step) {
+        updatedOPs = updatedOPs.map((op) => {
+          if (op.uic === step.uic && op.ch === step.ch && op.kp === step.kp) {
+            return {
+              ...op,
+              stop_for: step.stop_for,
+              arrival: step.arrival,
+              onStopSignal: step.onStopSignal,
+              theoreticalMargin: step.theoreticalMargin,
+            };
+          }
+          return op;
+        });
       }
     });
   }
@@ -117,8 +132,14 @@ export const insertViasInOPs = (ops: SuggestedOP[], pathSteps: PathStep[]): Sugg
  * probably because of imports problem).
  * If the vias has no uic, it has been added via map click and we know it has an id.
  */
+
+// ! add path_items_positions
 export const isVia = (vias: PathStep[], op: SuggestedOP) =>
   vias.some(
     (via) =>
-      ('uic' in via && 'ch' in via && via.uic === op.uic && via.ch === op.ch) || via.id === op.opId
+      // ! check if op.pathPositions is in path_items_positions
+
+      // TODO TSV2 : check here if when updating a via
+      ('uic' in via && 'ch' in via && via.uic === op.uic && via.ch === op.ch && via.kp === op.kp) ||
+      via.id === op.opId
   );

@@ -86,10 +86,12 @@ export type PathStep = (
         If true, the train schedule is consider as invalid and must be edited */
   deleted?: boolean;
   arrival?: string | null;
+  departure?: string | null;
   locked?: boolean;
-  stopFor?: string | null;
+  stop_for?: string | null;
   theoreticalMargin?: string;
   onStopSignal?: boolean;
+  kp?: string;
   /** Distance from the beginning of the path in mm */
   positionOnPath?: number;
   coordinates: Position;

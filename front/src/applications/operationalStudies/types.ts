@@ -1,8 +1,5 @@
 import type { PathProperties, PathResponse } from 'common/api/osrdEditoastApi';
-import type {
-  Margins,
-  SuggestedOP,
-} from 'modules/trainschedule/components/ManageTrainSchedule/types';
+import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSchedule/types';
 
 export interface Destination {
   uic: number;
@@ -87,5 +84,4 @@ export type ManageTrainSchedulePathProperties = {
   /** Operational points along the path and vias added by clicking on map */
   allVias: SuggestedOP[];
   length: number;
-  margins?: Margins;
 };

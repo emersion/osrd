@@ -232,6 +232,16 @@ export default function commonConfBuilder() {
           coordinates: [-4.4785379, 48.3878704],
         },
       ],
+      allVias: [
+        {
+          opId: 'd9acb48e-6667-11e3-89ff-01f464e0362d',
+
+          track: '69c04314-6667-11e3-81ff-01f464e0362d',
+          offsetOnTrack: 310,
+          positionOnPath: 0,
+          coordinates: [-4.4785379, 48.3878704],
+        },
+      ],
       length: 1169926000,
     }),
   };

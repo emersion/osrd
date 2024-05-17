@@ -140,6 +140,8 @@ const checkCurrentConfig = (
         name,
         ch,
         metadata,
+        kp,
+        onStopSignal,
         ...path
       } = step;
       return { ...path, secondary_code: ch };

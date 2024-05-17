@@ -24,9 +24,11 @@ import { formatKmValue } from 'utils/strings';
 
 const ManageTrainScheduleV2 = () => {
   const { t } = useTranslation(['operationalStudies/manageTrainSchedule', 'timesStops']);
-  const { getOriginV2, getDestinationV2 } = useOsrdConfSelectors();
+  const { getOriginV2, getDestinationV2, getPathSteps } = useOsrdConfSelectors();
   const origin = useSelector(getOriginV2);
   const destination = useSelector(getDestinationV2);
+  const pathSteps = useSelector(getPathSteps);
+  console.log('pathSteps:', pathSteps);
 
   const [pathProperties, setPathProperties] = useState<ManageTrainSchedulePathProperties>();
 
@@ -106,7 +108,13 @@ const ManageTrainScheduleV2 = () => {
       </div>
     ),
     label: t('tabs.timesStops'),
-    content: pathProperties && <TimesStops path={pathProperties} />,
+    content: pathProperties && (
+      <TimesStops
+        pathProperties={pathProperties}
+        pathSteps={pathSteps}
+        setPathProperties={setPathProperties}
+      />
+    ),
   };
 
   const tabSimulationSettings = {

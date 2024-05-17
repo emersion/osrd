@@ -404,10 +404,14 @@ export function buildCommonConfReducers<S extends OsrdConfState>(): CommonConfRe
         positionOnPath: action.payload.positionOnPath,
         name: action.payload.name,
         ch: action.payload.ch,
-        stop_for: action.payload.stopFor,
+        kp: action.payload.kp,
+        stop_for: action.payload.stop_for,
         arrival: action.payload.arrival,
+        departure: action.payload.departure,
         locked: action.payload.locked,
         deleted: action.payload.deleted,
+        onStopSignal: action.payload.onStopSignal,
+        theoreticalMargin: action.payload.theoreticalMargin,
         ...(action.payload.uic
           ? { uic: action.payload.uic }
           : {

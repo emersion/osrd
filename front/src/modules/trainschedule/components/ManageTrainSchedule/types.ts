@@ -10,6 +10,7 @@ export type SuggestedOP = {
   chLongLabel?: string;
   chShortLabel?: string;
   ci?: number;
+  kp?: string;
   trigram?: string;
   offsetOnTrack: number;
   track: string;
@@ -21,8 +22,9 @@ export type SuggestedOP = {
         If true, the train schedule is consider as invalid and must be edited */
   deleted?: boolean;
   arrival?: string | null;
+  departure?: string | null;
   locked?: boolean;
-  stopFor?: string | null;
+  stop_for?: string | null;
   theoreticalMargin?: string;
   onStopSignal?: boolean;
   // Metadatas given by ManageTrainScheduleMap click event to add origin/destination/via
