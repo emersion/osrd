@@ -173,6 +173,7 @@ const Pathfinding = ({ pathProperties, setPathProperties }: PathfindingProps) =>
     pathSteps,
     pathProperties,
   };
+  console.log("path-properties -> ", pathProperties);
   const [pathfindingState, pathfindingDispatch] = useReducer(reducer, initializerArgs, init);
   const [isInfraLoaded, setIsInfraLoaded] = useState(false);
   const [reloadCount, setReloadCount] = useState(1);

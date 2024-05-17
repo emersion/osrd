@@ -58,9 +58,22 @@ export interface StandardAllowance {
   type: AllowanceValue['value_type'];
   value?: number;
 }
+
+export type Sillon = {
+  origin: PointOnMap | null;
+  destination: PointOnMap | null;
+  vias: PointOnMap[];
+};
+
 export interface OsrdStdcmConfState extends OsrdConfState {
   maximumRunTime: number;
   standardStdcmAllowance?: StandardAllowance;
+  consist: {
+    tractionEngine: string | null;
+    tonnage: number | null;
+    length: number | null;
+  };
+  maximumDepartureDelay?: number;
 }
 
 export type PathStep = (

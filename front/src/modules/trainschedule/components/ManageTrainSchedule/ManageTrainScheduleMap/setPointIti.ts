@@ -6,6 +6,7 @@ import { store } from 'store';
 
 export function setPointIti(pointType: string, data: PointOnMap, actions: ConfSliceActions) {
   const { updateOrigin, updateDestination, addVias, updateFeatureInfoClick } = actions;
+  console.log('setPointIti - data (PointOnMap):  ', data);
   const point: PointOnMap = {
     ...data,
     location: { track_section: data.id, geo_coordinates: data.coordinates },

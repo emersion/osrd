@@ -65,5 +65,26 @@ describe('stdcmConfReducers', () => {
     expect(stateAfter.standardStdcmAllowance).toBe(newStandardAllowance);
   });
 
+  it('should handle updateConsist', () => {
+    const store = createStore();
+    const newConsist = {
+      tractionEngine: 'engine',
+      tonnage: 10,
+      length: 5,
+    };
+
+    const partialConsist = {
+      tractionEngine: 'engine2',
+    };
+
+    store.dispatch(stdcmConfSliceActions.updateConsist(newConsist));
+    const stateWithNewConsist = store.getState()[stdcmConfSlice.name];
+    expect(stateWithNewConsist.consist).toEqual(newConsist);
+
+    store.dispatch(stdcmConfSliceActions.updateConsist(partialConsist));
+    const stateWithPartialConsist = store.getState()[stdcmConfSlice.name];
+    expect(stateWithPartialConsist.consist).toEqual({ newConsist, ...partialConsist });
+  });
+
   testCommonConfReducers(stdcmConfSlice);
 });

@@ -2072,18 +2072,18 @@
     openapi-typescript "^5.4.1"
     yargs "^17.7.2"
 
-"@osrd-project/ui-core@^0.0.23":
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@osrd-project/ui-core/-/ui-core-0.0.23.tgz#9e73dec6fad1faaa24cafafce933bace9f0a6a72"
-  integrity sha512-bMsx1cm+psPws/g4E74XbEvUQ/GI6hEB3dovFKoksU88SqUKEL4IvJoTUNZspdwZRvHKBK6NYnbhWL03iTD4yA==
+"@osrd-project/ui-core@^0.0.24":
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/@osrd-project/ui-core/-/ui-core-0.0.24.tgz#c3703a539de7934cfb6602efb40b1a3822e4d71e"
+  integrity sha512-2/XHmVVYRsirtMqPA/wyyc51COIpPH4EbsLyFfyI4VvmehCUNGt10i9pHs0BtxSqjBohth08mwMTedRwjzVNpg==
   dependencies:
     classnames "^2.5.1"
     tailwindcss "^3.4.1"
 
-"@osrd-project/ui-icons@^0.0.23":
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@osrd-project/ui-icons/-/ui-icons-0.0.23.tgz#1cd4dfa36799a24f7af8c714a323c4a520be239f"
-  integrity sha512-xj01uemidRTWHhtNcghdCn5b7GzSNF5MgHjeerYPUERCSVW4G5UDSLAsKb31dxgg02qbd6XB5Ki94iqBEINHnQ==
+"@osrd-project/ui-icons@^0.0.24":
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/@osrd-project/ui-icons/-/ui-icons-0.0.24.tgz#caa922e8c6982a6bdb6ddbcdf0a9cda03308d446"
+  integrity sha512-mJ+iExKCaM/tK+Kz8N4tlcRFcZHlxqCbb6FEL4WNcSMzO+JDOeVfJ2KjoLpGxLmeWgbzOji+pIjKxkKRiCyEmg==
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"

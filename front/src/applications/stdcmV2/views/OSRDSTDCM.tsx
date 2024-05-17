@@ -2,28 +2,40 @@ import React from 'react';
 
 import { Button } from '@osrd-project/ui-core';
 import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
+import { useSelector } from 'react-redux';
 
-
+import { useOsrdConfSelectors } from 'common/osrdContext';
+import ScenarioExplorer from 'modules/scenario/components/ScenarioExplorer';
 import { Map } from 'modules/trainschedule/components/ManageTrainSchedule';
 
 import StdcmConsist from '../components/StdcmConsist';
+import StdcmDefaultCard from '../components/StdcmDefaultCard';
 import StdcmDestination from '../components/StdcmDestination';
 import StdcmHeader from '../components/StdcmHeader';
 import StdcmOrigin from '../components/StdcmOrigin';
-import StdcmCard from '../components/StdcmCard';
-import StdcmDefaultCard from '../components/StdcmDefaultCard';
 
 // TODO
-// - remove children as mandatory prop
 // - translate labels
 
 export default function OSRDSTDCM() {
+  const { getProjectID, getScenarioID, getStudyID } = useOsrdConfSelectors();
+  const studyID = useSelector(getStudyID);
+  const projectID = useSelector(getProjectID);
+  const scenarioID = useSelector(getScenarioID);
+
   return (
     <div className="stdcm-v2">
       <StdcmHeader />
       <div className="stdcm-v2__body">
         <div className="stdcm-v2-simulation-settings">
-          <StdcmConsist />
+          <div>
+            <ScenarioExplorer
+              globalProjectId={projectID}
+              globalStudyId={studyID}
+              globalScenarioId={scenarioID}
+            />
+            <StdcmConsist />
+          </div>
           <div className="stdcm-v2__separator" />
           <div className="stdcm-v2-simulation-itinirary">
             {/* //TODO: rename StdcmDefaultCard */}
