@@ -65,9 +65,10 @@ fun projectSignals(
     val startOffset =
         trainPathBlockOffset(fullInfra.rawInfra, fullInfra.blockInfra, blockPath, chunkPath)
     // Compute path signals on path
+    val pathOffsetBuilder = PathOffsetBuilder(startOffset)
     val pathSignals =
         pathSignalsInRange(
-            startOffset,
+            pathOffsetBuilder,
             blockPath,
             blockInfra,
             0.meters,
@@ -90,6 +91,7 @@ fun projectSignals(
         )
     val signalUpdates =
         signalUpdates(
+            pathOffsetBuilder,
             pathSignals,
             signalAspectChangeEvents,
             loadedSignalInfra,
@@ -175,6 +177,7 @@ private fun computeSignalAspectChangeEvents(
 }
 
 private fun signalUpdates(
+    pathOffsetBuilder: PathOffsetBuilder,
     signalsOnPath: List<PathSignal>,
     signalAspectChangeEvents: Map<PathSignal, MutableList<SignalAspectChangeEventV2>>,
     loadedSignalInfra: LoadedSignalInfra,
@@ -227,7 +230,7 @@ private fun signalUpdates(
         val positionStart = pathSignal.pathOffset
         val positionEnd =
             if (nextSignal.contains(signal)) nextSignal[signal]!!.pathOffset
-            else pathLength.distance
+            else Offset(pathLength.distance)
 
         if (events.isEmpty()) continue
 
@@ -245,8 +248,8 @@ private fun signalUpdates(
                         physicalSignalName!!,
                         timeStart,
                         timeEnd,
-                        Offset(positionStart),
-                        Offset(positionEnd),
+                        pathOffsetBuilder.fromTravelledPath(positionStart),
+                        pathOffsetBuilder.fromTravelledPath(positionEnd),
                         color("VL"),
                         blinking("VL"),
                         "VL"
@@ -263,8 +266,8 @@ private fun signalUpdates(
                     physicalSignalName!!,
                     event.time,
                     nextEvent.time,
-                    Offset(positionStart),
-                    Offset(positionEnd),
+                    pathOffsetBuilder.fromTravelledPath(positionStart),
+                    pathOffsetBuilder.fromTravelledPath(positionEnd),
                     color(event.newAspect),
                     blinking(event.newAspect),
                     event.newAspect
@@ -281,8 +284,8 @@ private fun signalUpdates(
                     physicalSignalName!!,
                     timeStart,
                     simulationEndTime,
-                    Offset(positionStart),
-                    Offset(positionEnd),
+                    pathOffsetBuilder.fromTravelledPath(positionStart),
+                    pathOffsetBuilder.fromTravelledPath(positionEnd),
                     color(event.newAspect),
                     blinking(event.newAspect),
                     event.newAspect

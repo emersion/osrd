@@ -37,12 +37,12 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class OffsetConverter(val startOffset: Distance) {
+class PathOffsetBuilder(val startOffset: Distance) {
     fun toTravelledPath(offset: Offset<Path>): Offset<TravelledPath> {
         return Offset(offset.distance - startOffset)
     }
 
-    fun toPath(offset: Offset<TravelledPath>): Offset<Path> {
+    fun fromTravelledPath(offset: Offset<TravelledPath>): Offset<Path> {
         return Offset(offset.distance + startOffset)
     }
 }
@@ -116,16 +116,16 @@ fun run(
 
     // Compute signal updates
     val startOffset = trainPathBlockOffset(rawInfra, blockInfra, blockPath, chunkPath)
-    val offsetConverter = OffsetConverter(startOffset)
+    val pathOffsetBuilder = PathOffsetBuilder(startOffset)
     var blockPathLength = 0.meters
     for (block in blockPath) blockPathLength += blockInfra.getBlockLength(block).distance
     val endOffset = blockPathLength - startOffset - (envelope.endPos - envelope.beginPos).meters
 
     val pathSignals =
-        pathSignalsInEnvelope(offsetConverter, blockPath, blockInfra, envelopeWithStops)
+        pathSignalsInEnvelope(pathOffsetBuilder, blockPath, blockInfra, envelopeWithStops)
     val zoneOccupationChangeEvents =
         zoneOccupationChangeEvents(
-            offsetConverter,
+            pathOffsetBuilder,
             blockPath,
             blockInfra,
             envelopeWithStops,
@@ -186,7 +186,7 @@ fun run(
         )
     val pathStops =
         schedule.stops.map {
-            PathStop(offsetConverter.toPath(Offset(it.position.meters)), it.onStopSignal)
+            PathStop(pathOffsetBuilder.fromTravelledPath(Offset(it.position.meters)), it.onStopSignal)
         }
     incrementalPath.extend(
         PathFragment(
@@ -204,7 +204,7 @@ fun run(
 
     val routingRequirements =
         routingRequirements(
-            offsetConverter,
+            pathOffsetBuilder,
             simulator,
             routePath,
             blockPath,
@@ -231,7 +231,7 @@ fun run(
 
 fun routingRequirements(
     // the start offset is the distance from the start of the first block to the start location
-    offsetConverter: OffsetConverter,
+    pathOffsetBuilder: PathOffsetBuilder,
     simulator: SignalingSimulator,
     routePath: StaticIdxList<Route>,
     blockPath: StaticIdxList<Block>,
@@ -260,7 +260,7 @@ fun routingRequirements(
     val blockOffsets = MutableOffsetArray(blockPath.size) { Offset.zero<TravelledPath>() }
     var curOffset = Offset.zero<Path>()
     for (i in 0 until blockPath.size) {
-        blockOffsets[i] = offsetConverter.toTravelledPath(curOffset)
+        blockOffsets[i] = pathOffsetBuilder.toTravelledPath(curOffset)
         val blockLength = blockInfra.getBlockLength(blockPath[i])
         curOffset += blockLength.distance
     }
@@ -363,7 +363,7 @@ fun routingRequirements(
             blockOffset + blockInfra.getSignalsPositions(firstRouteBlock).first().distance
         for (stopIdx in stops.size - 1 downTo 0) {
             val stop = stops[stopIdx]
-            val stopTravelledOffset = offsetConverter.toTravelledPath(stop.pathOffset)
+            val stopTravelledOffset = pathOffsetBuilder.toTravelledPath(stop.pathOffset)
             if (stop.onStopSignal && entrySignalOffset <= stopTravelledOffset) {
                 criticalPos = stopTravelledOffset + Distance(1)
                 break
@@ -393,7 +393,7 @@ fun routingRequirements(
             val zonePath = routeZonePath[zonePathIndex]
             routePathOffset += rawInfra.getZonePathLength(zonePath).distance
             // the distance to the end of the zone from the start of the train path
-            val travelPathOffset = offsetConverter.toTravelledPath(routePathOffset)
+            val travelPathOffset = pathOffsetBuilder.toTravelledPath(routePathOffset)
             // the point in the train path at which the zone is released
             val criticalPos = travelPathOffset + rollingStock.length.meters
             // if the zones are never occupied by the train, no requirement is emitted
@@ -496,7 +496,7 @@ data class ZoneOccupationChangeEvent(
 )
 
 fun zoneOccupationChangeEvents(
-    offsetConverter: OffsetConverter,
+    pathOffsetBuilder: PathOffsetBuilder,
     blockPath: StaticIdxList<Block>,
     blockInfra: BlockInfra,
     envelope: EnvelopeTimeInterpolate,
@@ -504,7 +504,7 @@ fun zoneOccupationChangeEvents(
     trainLength: Double
 ): MutableList<ZoneOccupationChangeEvent> {
     var zoneCount = 0
-    var currentOffset = offsetConverter.toTravelledPath(Offset.zero())
+    var currentOffset = pathOffsetBuilder.toTravelledPath(Offset.zero())
     val zoneOccupationChangeEvents = mutableListOf<ZoneOccupationChangeEvent>()
     for ((blockIdx, block) in blockPath.withIndex()) {
         for (zonePath in blockInfra.getBlockPath(block)) {
@@ -554,12 +554,12 @@ data class PathSignal(
 
 // Returns all the signals on the path
 fun pathSignals(
-    offsetConverter: OffsetConverter,
+    pathOffsetBuilder: PathOffsetBuilder,
     blockPath: StaticIdxList<Block>,
     blockInfra: BlockInfra,
 ): List<PathSignal> {
     val pathSignals = mutableListOf<PathSignal>()
-    var currentOffset = offsetConverter.toTravelledPath(Offset.zero())
+    var currentOffset = pathOffsetBuilder.toTravelledPath(Offset.zero())
     for ((blockIdx, block) in blockPath.withIndex()) {
         val blockSignals = blockInfra.getBlockSignals(block)
         val blockSignalPositions = blockInfra.getSignalsPositions(block)
@@ -581,13 +581,13 @@ fun pathSignals(
 // The reason being that even if a train see a red signal, it won't
 // matter since the train was going to stop before it anyway
 fun pathSignalsInEnvelope(
-    offsetConverter: OffsetConverter,
+    pathOffsetBuilder: PathOffsetBuilder,
     blockPath: StaticIdxList<Block>,
     blockInfra: BlockInfra,
     envelope: EnvelopeTimeInterpolate,
 ): List<PathSignal> {
     return pathSignalsInRange(
-        offsetConverter,
+        pathOffsetBuilder,
         blockPath,
         blockInfra,
         0.meters,
@@ -596,13 +596,13 @@ fun pathSignalsInEnvelope(
 }
 
 fun pathSignalsInRange(
-    offsetConverter: OffsetConverter,
+    pathOffsetBuilder: PathOffsetBuilder,
     blockPath: StaticIdxList<Block>,
     blockInfra: BlockInfra,
     rangeStart: Distance,
     rangeEnd: Distance,
 ): List<PathSignal> {
-    return pathSignals(offsetConverter, blockPath, blockInfra).filter { signal ->
+    return pathSignals(pathOffsetBuilder, blockPath, blockInfra).filter { signal ->
         signal.pathOffset.distance in rangeStart..rangeEnd
     }
 }

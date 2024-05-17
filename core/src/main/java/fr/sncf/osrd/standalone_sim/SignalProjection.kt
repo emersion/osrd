@@ -78,7 +78,7 @@ fun project(
     // Compute signal updates
     val startOffset =
         trainPathBlockOffset(fullInfra.rawInfra, fullInfra.blockInfra, blockPath, chunkPath)
-    val pathSignals = pathSignals(OffsetConverter(startOffset), blockPath, blockInfra)
+    val pathSignals = pathSignals(PathOffsetBuilder(startOffset), blockPath, blockInfra)
     if (pathSignals.isEmpty()) return SignalProjectionResult(listOf())
 
     val signalAspectChangeEvents =
