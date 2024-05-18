@@ -21,20 +21,20 @@ const DEFAULT_DISPLAYED_RANGES_COUNT = 5;
 
 const TrackRangesList = () => {
   const {
-    state: { entity, trackSectionsCache, routesTrackRanges },
+    state: { entity, trackSectionsCache, routeElements },
     setState,
   } = useContext(EditorContext) as ExtendedEditorContextType<
     RangeEditionState<SpeedSectionEntity | ElectrificationEntity>
   >;
   const { t } = useTranslation();
   const [showAll, setShowAll] = useState(false);
-  let ranges = entity.properties.track_ranges || [];
-  ranges = showAll ? ranges : ranges.slice(0, DEFAULT_DISPLAYED_RANGES_COUNT);
+  const ranges = entity.properties.track_ranges || [];
+  const displayedRanges = showAll ? ranges : ranges.slice(0, DEFAULT_DISPLAYED_RANGES_COUNT);
 
-  const rangesByRoute = groupBy(ranges, (range) => {
+  const rangesByRoute = groupBy(displayedRanges, (range) => {
     // eslint-disable-next-line no-restricted-syntax
-    for (const [routeKey, routeTracks] of Object.entries(routesTrackRanges)) {
-      if (routeTracks.includes(range)) {
+    for (const [routeKey, { trackRanges }] of Object.entries(routeElements)) {
+      if (trackRanges.includes(range)) {
         return routeKey;
       }
     }
@@ -91,7 +91,7 @@ const TrackRangesList = () => {
       <h4 className="pb-2">
         <MdShowChart className="me-1" /> {t('Editor.tools.range-edition.linked-track-sections')}
       </h4>
-      {ranges.length === 0 ? (
+      {displayedRanges.length === 0 ? (
         <p className="text-muted mt-3 text-center">
           {t('Editor.tools.range-edition.empty-linked-track-section')}
         </p>
@@ -110,7 +110,7 @@ const TrackRangesList = () => {
                   count: DEFAULT_DISPLAYED_RANGES_COUNT,
                 })
               : t('Editor.tools.range-edition.show-more-ranges', {
-                  count: ranges.length - DEFAULT_DISPLAYED_RANGES_COUNT,
+                  count: displayedRanges.length - DEFAULT_DISPLAYED_RANGES_COUNT,
                 })}
           </button>
         </div>

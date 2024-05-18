@@ -18,7 +18,8 @@ import type {
   SwitchPosition,
 } from 'applications/editor/tools/rangeEdition/types';
 import {
-  makeTrackRangesByRouteName,
+  getTracksBetweenExtremeSwitches,
+  makeRouteElements,
   speedSectionIsPsl,
 } from 'applications/editor/tools/rangeEdition/utils';
 import type { ExtendedEditorContextType, PartialOrReducer } from 'applications/editor/types';
@@ -41,7 +42,7 @@ const RangeEditionLeftPanel = () => {
       trackSectionsCache,
       selectedSwitches,
       highlightedRoutes,
-      routesTrackRanges,
+      routeElements,
     },
   } = useContext(EditorContext) as ExtendedEditorContextType<RangeEditionState<SpeedSectionEntity>>;
 
@@ -65,7 +66,7 @@ const RangeEditionLeftPanel = () => {
     setState({
       entity: newEntity,
       selectedSwitches: {},
-      routesTrackRanges: {},
+      routeElements: {},
       highlightedRoutes: [],
     });
   };
@@ -116,14 +117,17 @@ const RangeEditionLeftPanel = () => {
   };
 
   const handleRouteClicked = (select: boolean) => async (routeId: string) => {
-    if (!isEmpty(routesTrackRanges)) {
+    if (!isEmpty(routeElements)) {
       const newEntity = cloneDeep(entity) as SpeedSectionEntity;
       const { properties } = newEntity;
       if (select) {
         properties.on_routes = toggleElement(properties.on_routes || [], routeId);
-        properties.track_ranges = Object.values(
-          pick(routesTrackRanges, properties.on_routes)
-        ).flat();
+        const trackRangesBetweenSwitches = Object.values(
+          pick(routeElements, properties.on_routes)
+        ).flatMap((els) =>
+          getTracksBetweenExtremeSwitches(els.orderedRouteElements, selectedSwitches)
+        );
+        properties.track_ranges = trackRangesBetweenSwitches;
         setState({
           optionsState: { type: 'idle' },
           entity: newEntity,
@@ -168,9 +172,9 @@ const RangeEditionLeftPanel = () => {
       infraId: infraID as number,
       routes: routes.join(','),
     }).unwrap();
-    const trackRangesByRouteName = makeTrackRangesByRouteName(trackRangesResults, routes);
+    const newRouteElements = makeRouteElements(trackRangesResults, routes);
     setState({
-      routesTrackRanges: trackRangesByRouteName,
+      routeElements: newRouteElements,
       optionsState: { type: 'idle' },
       highlightedRoutes: [],
     });
@@ -180,7 +184,7 @@ const RangeEditionLeftPanel = () => {
     if (switchesRouteCandidates.length) {
       handleRouteClicked(true)(switchesRouteCandidates[0]);
     }
-  }, [routesTrackRanges]);
+  }, [routeElements]);
 
   useEffect(() => {
     searchRoutesFromSwitch();

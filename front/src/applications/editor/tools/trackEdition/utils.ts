@@ -79,7 +79,7 @@ export function getEditSpeedSectionState(
     hoveredItem: null,
     selectedSwitches: {},
     highlightedRoutes: [],
-    routesTrackRanges: {},
+    routeElements: {},
   };
 }
 
@@ -95,6 +95,6 @@ export function getEditElectrificationState(
     hoveredItem: null,
     selectedSwitches: {},
     highlightedRoutes: [],
-    routesTrackRanges: {},
+    routeElements: {},
   };
 }

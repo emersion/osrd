@@ -14,17 +14,23 @@ import {
   getTrackSectionEntityFromNearestPoint,
 } from 'applications/editor/tools/utils';
 import type { PartialOrReducer } from 'applications/editor/types';
-import type { GetInfraByInfraIdRoutesTrackRangesApiResponse } from 'common/api/osrdEditoastApi';
+import type {
+  DirectionalTrackRange,
+  GetInfraByInfraIdRoutesTrackRangesApiResponse,
+} from 'common/api/osrdEditoastApi';
 import { getNearestPoint } from 'utils/mapHelper';
 
 import type {
+  ApplicableTrackRange,
   ElectrificationEntity,
+  OrderedRouteElementApplicable,
   PSLExtension,
   PSLSign,
   PSL_SIGN_TYPE,
   PslSignFeature,
   PslSignInformation,
   RangeEditionState,
+  RouteElements,
   RouteTrackRanges,
   SpeedSectionEntity,
   SpeedSectionPslEntity,
@@ -354,22 +360,57 @@ export const getObjTypeAction = (objType: 'SpeedSection' | 'Electrification') =>
 export const isNew = (entity: SpeedSectionEntity | ElectrificationEntity) =>
   entity.properties.id === NEW_ENTITY_ID;
 
-export const makeTrackRangesByRouteName = (
+export const getTracksBetweenExtremeSwitches = (
+  orderedRouteElements: OrderedRouteElementApplicable[],
+  selectedSwitches: Record<string, object>
+) => {
+  const indices = Object.keys(selectedSwitches).map((s) =>
+    orderedRouteElements.findIndex((el) => 'Switch' in el && el.Switch === s)
+  );
+  const zoneTrackRanges = (
+    orderedRouteElements
+      .slice(Math.min(...indices), Math.max(...indices))
+      .filter((el) => 'TrackRange' in el) as Extract<
+      OrderedRouteElementApplicable,
+      {
+        TrackRange: ApplicableTrackRange;
+      }
+    >[]
+  ).map((el) => el.TrackRange);
+  return zoneTrackRanges;
+};
+
+function renameDerection(trackRange: TrackRange) {
+  const { begin, end, track } = trackRange;
+  return {
+    begin,
+    end,
+    track,
+    applicable_directions: trackRange.direction,
+  };
+}
+export const makeRouteElements = (
   trackRangesResults: GetInfraByInfraIdRoutesTrackRangesApiResponse,
   routes: string[]
-): RouteTrackRanges =>
+): RouteElements =>
   trackRangesResults.reduce((acc, cur, index) => {
     if (cur.type === 'Computed') {
-      const renamedFieldsTrackRanges = cur.track_ranges.map((trackRange) => {
-        const { begin, end, track } = trackRange;
-        return {
-          begin,
-          end,
-          track,
-          applicable_directions: trackRange.direction,
-        };
+      const renamedFieldsTrackRanges = cur.track_ranges.map((trackRange) =>
+        renameDerection(trackRange)
+      );
+      const orderedRouteElements = cur.ordered_route_elements.map((el) => {
+        if ('TrackRange' in el) {
+          return { TrackRange: renameDerection(el.TrackRange) };
+        }
+        return el;
       });
-      return { ...acc, [routes[index]]: renamedFieldsTrackRanges };
+      return {
+        ...acc,
+        [routes[index]]: {
+          trackRanges: renamedFieldsTrackRanges,
+          orderedRouteElements,
+        },
+      };
     }
     return acc;
   }, {});

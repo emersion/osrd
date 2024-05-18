@@ -20,6 +20,7 @@ import type {
 import {
   generatePslSignFeatures,
   getTrackRangeFeatures,
+  getTracksBetweenExtremeSwitches,
   isOnModeMove,
   speedSectionIsPsl,
 } from 'applications/editor/tools/rangeEdition/utils';
@@ -47,7 +48,7 @@ export const SpeedSectionEditionLayers = () => {
       mousePosition,
       hovered,
       selectedSwitches,
-      routesTrackRanges,
+      routeElements,
       highlightedRoutes,
     },
     setState,
@@ -75,7 +76,9 @@ export const SpeedSectionEditionLayers = () => {
   const speedSectionsFeature: FeatureCollection = useMemo(() => {
     const flatEntity = flattenEntity(entity);
     // generate trackRangeFeatures
-    const trackRanges = Object.values(pick(routesTrackRanges, highlightedRoutes)).flat();
+    const trackRanges = Object.values(pick(routeElements, highlightedRoutes)).flatMap(
+      (el) => el.trackRanges
+    );
     const trackRangeFeatures = trackRanges.flatMap((range, i) => {
       const trackState = trackSectionsCache[range.track];
       return trackState?.type === 'success'
@@ -122,7 +125,10 @@ export const SpeedSectionEditionLayers = () => {
 
   // Here is where we handle loading the TrackSections attached to the speed section:
   useEffect(() => {
-    const trackIDs = entity.properties?.track_ranges?.map((range) => range.track) || [];
+    const trackIDs =
+      Object.values(pick(routeElements, highlightedRoutes))
+        .flatMap((el) => el.trackRanges)
+        ?.map((range) => range.track) || [];
     const missingTrackIDs = trackIDs.filter((id) => !trackSectionsCache[id]);
 
     if (missingTrackIDs.length) {

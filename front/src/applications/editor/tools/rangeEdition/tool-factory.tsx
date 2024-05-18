@@ -77,7 +77,7 @@ function getRangeEditionTool<T extends EditorRange>({
       optionsState: { type: 'idle' } as OptionsStateType,
       selectedSwitches: {},
       highlightedRoutes: [],
-      routesTrackRanges: {},
+      routeElements: {},
     };
   }
 

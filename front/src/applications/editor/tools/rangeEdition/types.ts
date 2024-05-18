@@ -33,6 +33,21 @@ export type ApplicableTrackRange = {
   track: string;
 };
 
+export type OrderedRouteElementApplicable =
+  | {
+      TrackRange: ApplicableTrackRange;
+    }
+  | {
+      Switch: string;
+    };
+
+export type RouteElements = {
+  [key: string]: {
+    trackRanges: ApplicableTrackRange[];
+    orderedRouteElements: OrderedRouteElementApplicable[];
+  };
+};
+
 export type RouteTrackRanges = { [key: string]: ApplicableTrackRange[] };
 
 export type SpeedSectionEntity = EditorEntity<
@@ -169,7 +184,7 @@ export type RangeEditionState<E extends EditorRange> = CommonToolState & {
   selectedSwitches: SwitchSelection;
   optionsState?: OptionsStateType;
   highlightedRoutes: string[];
-  routesTrackRanges: RouteTrackRanges;
+  routeElements: RouteElements;
 };
 
 export type SwitchPosition = {
