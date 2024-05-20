@@ -46,14 +46,10 @@ export default function StdcmConsist() {
   const dispatch = useAppDispatch();
 
   // TODO: Handle error
-  const {
-    data: { results: rollingStocks } = { results: [] },
-    isSuccess,
-    isError,
-    error,
-  } = enhancedEditoastApi.endpoints.getLightRollingStock.useQuery({
-    pageSize: 1000,
-  });
+  const { data: { results: rollingStocks } = { results: [] }, isSuccess } =
+    enhancedEditoastApi.endpoints.getLightRollingStock.useQuery({
+      pageSize: 1000,
+    });
 
   const { getConsist } = useOsrdConfSelectors() as StdcmConfSelectors;
   const consist = useSelector(getConsist);

@@ -108,7 +108,7 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
     dispatchNewPoint(value);
   };
 
-  const onSelectChCodeFilter = (newchCodeFilter?: string = '') => {
+  const onSelectChCodeFilter = (newchCodeFilter: string = '') => {
     if (newchCodeFilter.trim().length === 0) {
       dispatch(updatePoint(null));
     } else {

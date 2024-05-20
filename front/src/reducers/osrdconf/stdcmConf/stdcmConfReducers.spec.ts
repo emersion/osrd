@@ -68,13 +68,13 @@ describe('stdcmConfReducers', () => {
   it('should handle updateConsist', () => {
     const store = createStore();
     const newConsist = {
-      tractionEngine: 'engine',
+      tractionEngineId: 1,
       tonnage: 10,
       length: 5,
     };
 
     const partialConsist = {
-      tractionEngine: 'engine2',
+      tractionEngineId: 2,
     };
 
     store.dispatch(stdcmConfSliceActions.updateConsist(newConsist));
@@ -83,7 +83,7 @@ describe('stdcmConfReducers', () => {
 
     store.dispatch(stdcmConfSliceActions.updateConsist(partialConsist));
     const stateWithPartialConsist = store.getState()[stdcmConfSlice.name];
-    expect(stateWithPartialConsist.consist).toEqual({ newConsist, ...partialConsist });
+    expect(stateWithPartialConsist.consist).toEqual({ ...newConsist, ...partialConsist });
   });
 
   testCommonConfReducers(stdcmConfSlice);
