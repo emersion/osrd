@@ -77,6 +77,17 @@ export function formatDay(locale = 'fr') {
   return currentDate.format('dddd D MMMM YYYY');
 }
 
+export function formatDayV2(dateString: string, locale: string = 'fr'): string {
+  if (!['en', 'fr'].includes(locale)) {
+    throw new Error('Invalid locale');
+  }
+  const date = dayjs.utc(dateString).locale(locale);
+  if (locale === 'en') {
+    return date.format('dddd, MMMM D, YYYY');
+  }
+  return date.format('dddd D MMMM YYYY');
+}
+
 /** check whether a date is included in the range or not */
 export function dateIsInRange(date: Date, range: [Date, Date]) {
   return date > range[0] && date < range[1];

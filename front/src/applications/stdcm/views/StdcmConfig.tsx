@@ -202,9 +202,9 @@ const StdcmConfig = ({
             )}
             {trainScheduleV2Activated && rollingStock && stdcmV2Results && (
               <StdcmResultsV2
-              // mapCanvas={mapCanvas}
-              // stdcmResults={stdcmV2Results}
-              // rollingStockData={rollingStock}
+                mapCanvas={mapCanvas}
+                stdcmResults={stdcmV2Results}
+                rollingStockData={rollingStock}
               />
             )}
           </div>
