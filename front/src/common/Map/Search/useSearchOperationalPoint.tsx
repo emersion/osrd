@@ -22,7 +22,7 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     searchTerm: initialSearchTerm = '',
     chCodeFilter: initialChCodeFilter = '',
   } = props || {};
-  const infraID = 3; // useInfraID();
+  const infraID = useInfraID();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [chCodeFilter, setChCodeFilter] = useState(initialChCodeFilter);
   const [searchResults, setSearchResults] = useState<SearchResultItemOperationalPoint[]>([]);
@@ -83,7 +83,7 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
   // );
 
   const chOptions = useMemo(
-    () => ['', ...compact(sortedResults.sort().map((result) => result.ch))],
+    () => [...compact(sortedResults.sort().map((result) => result.ch))],
     [searchResults]
   );
 

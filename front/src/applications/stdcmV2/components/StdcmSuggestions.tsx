@@ -7,7 +7,7 @@ import SelectImprovedSNCF, {
   type SelectOptionObject,
 } from 'common/BootstrapSNCF/SelectImprovedSNCF';
 
-interface SuggestionsProps<T extends string | SelectOptionObject> extends InputProps {
+export interface StdcmSuggestionsProps<T extends string | SelectOptionObject> extends InputProps {
   options: T[];
   onSelectSuggestion: (option: T) => void;
 }
@@ -15,8 +15,10 @@ interface SuggestionsProps<T extends string | SelectOptionObject> extends InputP
 export default function StdcmSuggestions<T extends string | SelectOptionObject>({
   options,
   onSelectSuggestion,
+  onFocus,
+  onBlur,
   ...rest
-}: SuggestionsProps<T>) {
+}: StdcmSuggestionsProps<T>) {
   const [isSelectVisible, setIsSelectVisible] = useState(!isEmpty(options));
 
   const [isFocused, setIsFocused] = useState(false);
@@ -29,7 +31,17 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
 
   return (
     <>
-      <Input {...rest} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} />
+      <Input
+        {...rest}
+        onFocus={(e) => {
+          setIsFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setIsFocused(false);
+          onBlur?.(e);
+        }}
+      />
       {isSelectVisible && (
         <div className="selector-select">
           <SelectImprovedSNCF
