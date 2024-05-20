@@ -9,7 +9,6 @@ export const stdcmConfInitialState: OsrdStdcmConfState = {
   standardStdcmAllowance: undefined,
   maximumDepartureDelay: undefined,
   consist: {
-    tractionEngineName: null,
     tractionEngineId: null,
     tonnage: null,
     length: null,

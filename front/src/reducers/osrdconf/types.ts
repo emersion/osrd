@@ -69,7 +69,6 @@ export interface OsrdStdcmConfState extends OsrdConfState {
   maximumRunTime: number;
   standardStdcmAllowance?: StandardAllowance;
   consist: {
-    tractionEngineName: string | null;
     tractionEngineId: number | null;
     tonnage: number | null;
     length: number | null;

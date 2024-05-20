@@ -127,15 +127,15 @@ export default function useFilterRollingStock({
     if (setIsLoading) setIsLoading(true);
   };
   // TODO: investigate if the main condition does not have bad side effects
-  const toggleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name === 'notLocked' && filters.locked) {
+  const toggleFilter = (filter: 'elec' | 'thermal' | 'locked' | 'notLocked') => {
+    if (filter === 'notLocked' && filters.locked) {
       setFilters({ ...filters, notLocked: true, locked: false });
-    } else if (e.target.name === 'locked' && filters.notLocked) {
+    } else if (filter === 'locked' && filters.notLocked) {
       setFilters({ ...filters, locked: true, notLocked: false });
     } else {
       setFilters({
         ...filters,
-        [e.target.name]: !filters[e.target.name as 'elec' | 'thermal' | 'locked' | 'notLocked'],
+        [filter]: !filters[filter],
       });
     }
     if (setIsLoading) setIsLoading(true);

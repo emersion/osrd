@@ -51,7 +51,7 @@ const SearchRollingStock = ({
         <InputSNCF
           id="searchfilter"
           type="text"
-          onChange={searchMateriel}
+          onChange={(e) => searchMateriel(e.target.value)}
           placeholder={t('translation:common.search')}
           noMargin
           unit={<Search />}
@@ -62,7 +62,7 @@ const SearchRollingStock = ({
       <div className="col-md-5 ml-2 mb-3 d-flex align-items-center flex-wrap">
         <div className="mr-3">
           <CheckboxRadioSNCF
-            onChange={toggleFilter}
+            onChange={(e) => toggleFilter(e.target.name as 'elec')}
             name="elec"
             id="elec"
             label={
@@ -79,7 +79,7 @@ const SearchRollingStock = ({
         </div>
         <div className="mr-3">
           <CheckboxRadioSNCF
-            onChange={toggleFilter}
+            onChange={(e) => toggleFilter(e.target.name as 'thermal')}
             name="thermal"
             id="thermal"
             label={
@@ -96,7 +96,7 @@ const SearchRollingStock = ({
         </div>
         <div className="mr-3">
           <CheckboxRadioSNCF
-            onChange={toggleFilter}
+            onChange={(e) => toggleFilter(e.target.name as 'locked')}
             name="locked"
             id="locked"
             label={
@@ -113,7 +113,7 @@ const SearchRollingStock = ({
         </div>
         <div>
           <CheckboxRadioSNCF
-            onChange={toggleFilter}
+            onChange={(e) => toggleFilter(e.target.name as 'notLocked')}
             name="notLocked"
             id="notLocked"
             label={
