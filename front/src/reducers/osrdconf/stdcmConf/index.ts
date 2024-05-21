@@ -8,11 +8,6 @@ export const stdcmConfInitialState: OsrdStdcmConfState = {
   maximumRunTime: 43200,
   standardStdcmAllowance: undefined,
   maximumDepartureDelay: undefined,
-  consist: {
-    tractionEngineId: null,
-    tonnage: null,
-    length: null,
-  },
   ...defaultCommonConf,
 };
 
@@ -32,15 +27,6 @@ export const stdcmConfSlice = createSlice({
       action: PayloadAction<OsrdStdcmConfState['standardStdcmAllowance']>
     ) {
       state.standardStdcmAllowance = action.payload;
-    },
-    updateConsist(
-      state: Draft<OsrdStdcmConfState>,
-      action: PayloadAction<Partial<OsrdStdcmConfState['consist']>>
-    ) {
-      state.consist = {
-        ...state.consist,
-        ...action.payload,
-      };
     },
   },
 });

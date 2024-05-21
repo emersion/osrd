@@ -42,7 +42,7 @@ export default function StdcmConsist() {
   const { speedLimitByTag, speedLimitsByTags, dispatchUpdateSpeedLimitByTag } =
     useStoreDataForSpeedLimitByTagSelector();
 
-  const { updateConsist } = useOsrdConfActions() as StdcmConfSliceActions;
+  const { updateRollingStockID } = useOsrdConfActions() as StdcmConfSliceActions;
   const dispatch = useAppDispatch();
 
   // TODO: Handle error
@@ -51,9 +51,9 @@ export default function StdcmConsist() {
       pageSize: 1000,
     });
 
-  const { getConsist } = useOsrdConfSelectors() as StdcmConfSelectors;
-  const consist = useSelector(getConsist);
-  const selectedRs = rollingStocks.find((rs) => rs.id === consist.tractionEngineId);
+  const { getRollingStockID } = useOsrdConfSelectors() as StdcmConfSelectors;
+  const rollingStockID = useSelector(getRollingStockID);
+  const selectedRs = rollingStocks.find((rs) => rs.id === rollingStockID);
 
   const [filteredRollingStockList, setFilteredRollingStockList] =
     useState<LightRollingStockWithLiveries[]>(rollingStocks);
@@ -66,9 +66,9 @@ export default function StdcmConsist() {
     setFilteredRollingStockList,
   });
 
-  const getLabel = (rollingStock: LightRollingStockWithLiveries) => {
+  const getLabel = (rs: LightRollingStockWithLiveries) => {
     let res = '';
-    const { metadata, name } = rollingStock;
+    const { metadata, name } = rs;
 
     const series = metadata?.series ?? (metadata?.reference || '');
     const subseries =
@@ -90,28 +90,16 @@ export default function StdcmConsist() {
     // avoid to set tractionEngineId to null if the onBlur is due to a select change
     if (!isSelectChanged) {
       if (filteredRollingStockList.length === 1) {
-        dispatch(
-          updateConsist({
-            tractionEngineId: filteredRollingStockList[0].id,
-          })
-        );
+        dispatch(updateRollingStockID(filteredRollingStockList[0].id));
       } else {
-        dispatch(
-          updateConsist({
-            tractionEngineId: null,
-          })
-        );
+        dispatch(updateRollingStockID(undefined));
       }
     }
     setIsSelectChanged(false);
   };
 
   const onSelectSuggestion = (option: StdcmSuggestionsConsistOption) => {
-    dispatch(
-      updateConsist({
-        tractionEngineId: option.value.id,
-      })
-    );
+    dispatch(updateRollingStockID(option.value.id));
     setIsSelectChanged(true);
   };
 

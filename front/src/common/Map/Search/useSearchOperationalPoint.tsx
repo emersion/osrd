@@ -6,7 +6,7 @@ import { type SearchResultItemOperationalPoint, osrdEditoastApi } from 'common/a
 import { useInfraID } from 'common/osrdContext';
 import { useDebounce } from 'utils/helpers';
 
-const mainOperationalPointsCHCodes = ['', '00', 'BV'];
+export const mainOperationalPointsCHCodes = ['', '00', 'BV'];
 
 type SearchOperationalPoint = {
   debounceDelay?: number;
@@ -56,31 +56,38 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     }
   };
 
-  const sortedResults = useMemo(
-    () =>
-      [...searchResults]
-        .map((result) => ({
-          ...result,
-          // remove CH Code information when it's a main operational point (=== "BV" or "00") to ensure it'll be on top of search results
-          ch: mainOperationalPointsCHCodes.includes(result.ch) ? '' : result.ch ?? '',
-        }))
-        // Begin to filter with main operational points (CH code = ''), if not checked, filter on chCode input field
-        .filter((result) => {
-          if (mainOperationalPointsOnly) return result.ch === '';
-          return chCodeFilter !== ''
-            ? result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase())
-            : true;
-        })
-        .sort((a, b) => a.name.localeCompare(b.name) || a.ch?.localeCompare(b.ch)),
-    [searchResults, chCodeFilter, mainOperationalPointsOnly]
-  );
+  const sortedResults = useMemo(() => {
+    const filterResults = (result: SearchResultItemOperationalPoint) => {
+      const shouldInclude =
+        chCodeFilter !== ''
+          ? result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase())
+          : true;
+      return shouldInclude;
+    };
 
-  // const chOptions = useMemo(
-  //   () => [
-  //     ...compact(sortedResults.sort().map((result) => ({ value: result.ch, label: result.ch }))),
-  //   ],
-  //   [searchResults]
-  // );
+    const sortResults = (results: SearchResultItemOperationalPoint[]) =>
+      results.sort((a, b) => a.name.localeCompare(b.name) || a.ch?.localeCompare(b.ch));
+
+    const mainOperationalPoints: SearchResultItemOperationalPoint[] = [];
+    const otherPoints: SearchResultItemOperationalPoint[] = [];
+
+    searchResults.forEach((result) => {
+      if (filterResults(result)) {
+        if (mainOperationalPointsCHCodes.includes(result.ch)) {
+          mainOperationalPoints.push(result);
+        } else {
+          otherPoints.push(result);
+        }
+      }
+    });
+
+    const sortedMainOperationalPoints = sortResults(mainOperationalPoints);
+    const sortedOtherPoints = sortResults(otherPoints);
+
+    if (mainOperationalPointsOnly) return sortedMainOperationalPoints;
+
+    return [...sortedMainOperationalPoints, ...sortedOtherPoints];
+  }, [searchResults, chCodeFilter, mainOperationalPointsOnly]);
 
   const chOptions = useMemo(
     () => [...compact(sortedResults.sort().map((result) => result.ch))],

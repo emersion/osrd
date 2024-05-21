@@ -68,11 +68,6 @@ export type Sillon = {
 export interface OsrdStdcmConfState extends OsrdConfState {
   maximumRunTime: number;
   standardStdcmAllowance?: StandardAllowance;
-  consist: {
-    tractionEngineId: number | null;
-    tonnage: number | null;
-    length: number | null;
-  };
   maximumDepartureDelay?: number;
 }
 

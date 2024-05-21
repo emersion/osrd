@@ -4,10 +4,10 @@ import { useSelector } from 'react-redux';
 
 import InputSNCF from 'common/BootstrapSNCF/InputSNCF';
 import { useOsrdConfSelectors, useOsrdConfActions } from 'common/osrdContext';
+import StdcmAllowances from 'modules/stdcmAllowances/components/StdcmAllowances';
 import type { StdcmConfSliceActions } from 'reducers/osrdconf/stdcmConf';
 import { useAppDispatch } from 'store';
 
-import StdcmAllowances from './StdcmAllowances';
 import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
@@ -24,7 +24,7 @@ export default function StdcmOrigin() {
       <div className="stdcm-v2-origin">
         <StdcmOperationalPoint updatePoint={updateOriginV2} point={origin} />
         <div className="stdcm-v2-origin__parameters d-flex">
-          <div className="col-4">
+          <div className="col-3">
             <InputSNCF
               id="dateOrigin"
               label="Date"
@@ -34,7 +34,7 @@ export default function StdcmOrigin() {
               value={originDate}
             />
           </div>
-          <div className="col-4">
+          <div className="col-3">
             <InputSNCF
               type="time"
               label="Heure"
@@ -45,10 +45,8 @@ export default function StdcmOrigin() {
               value={originTime}
             />
           </div>
-          <div className="col-4">
-            <StdcmAllowances />
-          </div>
         </div>
+        <StdcmAllowances />
       </div>
     </StdcmCard>
   );

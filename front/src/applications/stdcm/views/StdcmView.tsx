@@ -6,13 +6,12 @@ import { useSelector } from 'react-redux';
 // TODO TS2: rename ManageTrainSchedulePathProperties and move it to /modules/pathfinding
 import type { ManageTrainSchedulePathProperties } from 'applications/operationalStudies/types';
 import STDCM_REQUEST_STATUS from 'applications/stdcm/consts';
-import type { StdcmRequestStatus, StdcmV2SuccessResponse } from 'applications/stdcm/types';
 import StdcmConfig from 'applications/stdcm/views/StdcmConfig';
 import StdcmRequestModal from 'applications/stdcm/views/StdcmRequestModal';
+import useStdcm from 'applications/stdcm/views/useStdcm';
 import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
 import type {
   PathfindingResultSuccess,
-  PostStdcmApiResponse,
   PostV2InfraByInfraIdPathPropertiesApiArg,
 } from 'common/api/osrdEditoastApi';
 import { useInfraID, useOsrdConfSelectors } from 'common/osrdContext';
@@ -28,14 +27,19 @@ const StdcmView = () => {
   const pathSteps = useSelector(getPathSteps);
 
   const [pathProperties, setPathProperties] = useState<ManageTrainSchedulePathProperties>();
-  const [stdcmResults, setStdcmResults] = useState<PostStdcmApiResponse>();
-  const [stdcmV2Results, setStdcmV2Results] = useState<StdcmV2SuccessResponse>();
-  const [currentStdcmRequestStatus, setCurrentStdcmRequestStatus] = useState<StdcmRequestStatus>(
-    STDCM_REQUEST_STATUS.idle
-  );
 
   const [postPathProperties] =
     enhancedEditoastApi.endpoints.postV2InfraByInfraIdPathProperties.useMutation();
+
+  const {
+    stdcmResults,
+    stdcmV2Results,
+    currentStdcmRequestStatus,
+    setCurrentStdcmRequestStatus,
+    launchStdcmRequest,
+    launchStdcmRequestV2,
+    cancelStdcmRequest,
+  } = useStdcm();
 
   useEffect(() => {
     const getPathProperties = async (_infraId: number, path: PathfindingResultSuccess) => {
@@ -101,10 +105,10 @@ const StdcmView = () => {
       />
       {currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending && (
         <StdcmRequestModal
-          setCurrentStdcmRequestStatus={setCurrentStdcmRequestStatus}
           currentStdcmRequestStatus={currentStdcmRequestStatus}
-          setStdcmResults={setStdcmResults}
-          setStdcmV2Results={setStdcmV2Results}
+          launchStdcmRequest={launchStdcmRequest}
+          launchStdcmRequestV2={launchStdcmRequestV2}
+          cancelStdcmRequest={cancelStdcmRequest}
         />
       )}
     </>

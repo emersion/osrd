@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { isNil } from 'lodash';
 
 import type { SearchResultItemOperationalPoint } from 'common/api/osrdEditoastApi';
 import SelectSNCF, { type SelectOptionObject } from 'common/BootstrapSNCF/SelectSNCF';
@@ -41,7 +42,6 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
     ch: string | null;
     ci: string | null;
     name?: string;
-    // }) => [trigram, name, ch].filter((el) => !isNil(el)).join(' ');
   }) => [trigram, name, ci, ch].join(' ');
 
   useEffect(() => {
@@ -88,13 +88,13 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
   };
 
   const dispatchNewPoint = (p?: SearchResultItemOperationalPoint) => {
-    if (!p) {
+    if (isNil(p)) {
       dispatch(updatePoint(null));
       return;
     }
     dispatch(
       updatePoint({
-        secondary_code: p.ci.toString(),
+        secondary_code: p.ci.toString() ?? null,
         trigram: p.trigram,
         name: p.name,
         ch: p.ch,

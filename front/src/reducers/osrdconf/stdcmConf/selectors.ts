@@ -11,7 +11,6 @@ const buildStdcmConfSelectors = () => {
     getStandardStdcmAllowance: makeOsrdConfSelector('standardStdcmAllowance'),
     getMaximumRunTime: makeOsrdConfSelector('maximumRunTime'),
     getMaximumDepartureDelay: makeOsrdConfSelector('maximumDepartureDelay'),
-    getConsist: makeOsrdConfSelector('consist'),
   };
 };
 

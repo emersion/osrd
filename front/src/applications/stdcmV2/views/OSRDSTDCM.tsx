@@ -4,6 +4,7 @@ import { Button } from '@osrd-project/ui-core';
 import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
 import { useSelector } from 'react-redux';
 
+import useStdcm from 'applications/stdcm/views/useStdcm';
 import { useOsrdConfSelectors } from 'common/osrdContext';
 import ScenarioExplorer from 'modules/scenario/components/ScenarioExplorer';
 import { Map } from 'modules/trainschedule/components/ManageTrainSchedule';
@@ -22,6 +23,7 @@ export default function OSRDSTDCM() {
   const studyID = useSelector(getStudyID);
   const projectID = useSelector(getProjectID);
   const scenarioID = useSelector(getScenarioID);
+  const { launchStdcmRequestV2 } = useStdcm();
 
   return (
     <div className="stdcm-v2">
@@ -44,7 +46,7 @@ export default function OSRDSTDCM() {
             <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} />
             <StdcmDestination />
             <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} />
-            <Button label="Obtenir la simulation" />
+            <Button label="Obtenir la simulation" onClick={launchStdcmRequestV2} />
           </div>
         </div>
         <div className="osrd-config-item-container osrd-config-item-container-map stdcm-v2-map">

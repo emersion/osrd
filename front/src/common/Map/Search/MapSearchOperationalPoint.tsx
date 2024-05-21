@@ -12,7 +12,9 @@ import type { Viewport } from 'reducers/map';
 import { getMap } from 'reducers/map/selectors';
 import { useAppDispatch } from 'store';
 
-import useSearchOperationalPoint from './useSearchOperationalPoint';
+import useSearchOperationalPoint, {
+  mainOperationalPointsCHCodes,
+} from './useSearchOperationalPoint';
 
 type MapSearchOperationalPointProps = {
   updateExtViewport: (viewport: Partial<Viewport>) => void;
@@ -157,7 +159,11 @@ const MapSearchOperationalPoint = ({
               <span className="trigram">{searchResult.trigram}</span>
               <span className="name">
                 {searchResult.name}
-                <span className="ch">{searchResult.ch}</span>
+                <span className="ch">
+                  {mainOperationalPointsCHCodes.includes(searchResult.ch)
+                    ? ''
+                    : searchResult.ch ?? ''}
+                </span>
               </span>
               <span className="uic">{searchResult.ci}</span>
             </button>
