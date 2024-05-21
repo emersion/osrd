@@ -4,32 +4,31 @@ import { Table, TR, TH, TD } from '@ag-media/react-pdf-table';
 import { Page, Text, Image, Document, View, Link } from '@react-pdf/renderer';
 import { useTranslation } from 'react-i18next';
 
+import type { ManageTrainSchedulePathProperties } from 'applications/operationalStudies/types';
 import iconAlert from 'assets/simulationReportSheet/icon_alert_fill.png';
 import logoSNCF from 'assets/simulationReportSheet/logo_sncf_reseau.png';
-import type {
-  PostV2InfraByInfraIdPathPropertiesApiResponse,
-  RollingStockWithLiveries,
-} from 'common/api/osrdEditoastApi';
+import type { RollingStockWithLiveries } from 'common/api/osrdEditoastApi';
 import { formatDayV2 } from 'utils/date';
-import { getStopDurationTime, getStopTime } from 'utils/timeManipulation';
 
 import styles from './SimulationReportStyleSheet';
 import type { StdcmV2SuccessResponse } from '../types';
 
 type SimulationReportSheetProps = {
   stdcmData: StdcmV2SuccessResponse;
+  pathProperties?: ManageTrainSchedulePathProperties;
   rollingStockData: RollingStockWithLiveries;
+  speedLimitByTag?: string;
   simulationReportSheetNumber: string;
   mapCanvas?: string;
-  pathProperties?: PostV2InfraByInfraIdPathPropertiesApiResponse;
 };
 
 const SimulationReportSheetV2 = ({
   stdcmData,
+  pathProperties,
   rollingStockData,
+  speedLimitByTag,
   simulationReportSheetNumber,
   mapCanvas,
-  pathProperties,
 }: SimulationReportSheetProps) => {
   const { t } = useTranslation('stdcm-simulation-report-sheet');
   let renderedIndex = 0;
@@ -93,10 +92,7 @@ const SimulationReportSheetV2 = ({
             <View style={styles.convoyAndRoute.convoyInfo}>
               <View style={styles.convoyAndRoute.convoyInfoBox1}>
                 <Text style={styles.convoyAndRoute.convoyInfoTitles}>{t('speedLimitByTag')}</Text>
-                <Text style={styles.convoyAndRoute.convoyInfoData}>
-                  {/* TODO: get the speed_limit_tags from form
-                  {speedLimits?.body.speed_limit_tags} */}
-                </Text>
+                <Text style={styles.convoyAndRoute.convoyInfoData}>{speedLimitByTag || '-'}</Text>
                 <Text style={styles.convoyAndRoute.convoyInfoTitles}>{t('towedMaterial')}</Text>
                 <Text style={styles.convoyAndRoute.convoyInfoData}>-</Text>
                 <Text style={styles.convoyAndRoute.convoyInfoTitles}>{t('maxSpeed')}</Text>
@@ -152,14 +148,14 @@ const SimulationReportSheetV2 = ({
                     <TD>{t('motif')}</TD>
                   </View>
                 </TH>
-                {pathProperties?.operational_points &&
-                  pathProperties.operational_points.map((step, index) => {
+                {pathProperties?.suggestedOperationalPoints &&
+                  pathProperties.suggestedOperationalPoints.map((step, index) => {
                     const isFirstStep = index === 0;
                     const isLastStep =
                       index ===
-                      (pathProperties.operational_points &&
-                        pathProperties.operational_points.length - 1);
-                    const shouldRenderRow = isFirstStep || step.duration > 0 || isLastStep;
+                      (pathProperties.suggestedOperationalPoints &&
+                        pathProperties.suggestedOperationalPoints.length - 1);
+                    const shouldRenderRow = isFirstStep || /*step.stopFor > 0 || */ isLastStep;
                     if (shouldRenderRow) {
                       renderedIndex += 1;
                       return (
@@ -171,13 +167,11 @@ const SimulationReportSheetV2 = ({
                           </View>
                           <View style={styles.convoyAndRoute.stopTableOpWidth}>
                             <TD style={styles.convoyAndRoute.stopTableOpColumn}>
-                              {step.extensions?.identifier?.name || 'Unknown'}
+                              {step.name || 'Unknown'}
                             </TD>
                           </View>
                           <View style={styles.convoyAndRoute.stopTableChWidth}>
-                            <TD style={styles.convoyAndRoute.stopTableChColumn}>
-                              {step.extensions?.sncf?.ch}
-                            </TD>
+                            <TD style={styles.convoyAndRoute.stopTableChColumn}>{step.ch}</TD>
                           </View>
                           <View style={styles.convoyAndRoute.stopTableEndWidth}>
                             <TD style={styles.convoyAndRoute.stopTableItalicColumn}>
@@ -186,7 +180,7 @@ const SimulationReportSheetV2 = ({
                           </View>
                           <View style={styles.convoyAndRoute.stopTableStartWidth}>
                             <TD style={styles.convoyAndRoute.stopTableStartColumn}>
-                              {isFirstStep ? getStopTime(step.time) : ''}
+                              {/* {isFirstStep ? getStopTime(step.stopFor) : ''} */}
                             </TD>
                           </View>
                           <View style={styles.convoyAndRoute.stopTableMotifWidth}>
@@ -262,79 +256,76 @@ const SimulationReportSheetV2 = ({
                   <TD>{t('crossedATE')}</TD>
                 </View>
               </TH>
-              {pathProperties?.operational_points &&
-                pathProperties.operational_points.map((step, index) => {
+              {pathProperties?.suggestedOperationalPoints &&
+                pathProperties.suggestedOperationalPoints.map((step, index) => {
                   const isFirstStep = index === 0;
                   const isLastStep =
                     index ===
-                    (pathProperties.operational_points &&
-                      pathProperties.operational_points.length - 1);
+                    (pathProperties.suggestedOperationalPoints &&
+                      pathProperties.suggestedOperationalPoints.length - 1);
                   const prevStep =
-                    pathProperties.operational_points &&
-                    pathProperties.operational_points[index - 1];
+                    pathProperties.suggestedOperationalPoints &&
+                    pathProperties.suggestedOperationalPoints[index - 1];
                   return (
                     <TR
                       key={index}
-                      style={
-                        step.duration !== 0 && !isLastStep
-                          ? styles.simulation.blueRow
-                          : styles.simulation.tbody
-                      }
+                      // style={
+                      //   step.stopFor !== 0 && !isLastStep
+                      //     ? styles.simulation.blueRow
+                      //     : styles.simulation.tbody
+                      // }
                     >
                       <TD style={styles.simulation.indexColumn}>{index + 1}</TD>
                       <View style={styles.simulation.opWidth}>
                         <TD
-                          style={
-                            !isFirstStep && !isLastStep && step.duration !== 0
-                              ? styles.simulation.opStop
-                              : styles.simulation.td
-                          }
+                        // style={
+                        //   !isFirstStep && !isLastStep && step.stopFor !== 0
+                        //     ? styles.simulation.opStop
+                        //     : styles.simulation.td
+                        // }
                         >
-                          {!isFirstStep &&
-                          !isLastStep &&
-                          step.extensions?.identifier?.name ===
-                            prevStep?.extensions?.identifier?.name
+                          {!isFirstStep && !isLastStep && step.name === prevStep.name
                             ? '='
-                            : step.extensions?.identifier?.name || 'Unknown'}
+                            : step.name || 'Unknown'}
                         </TD>
                       </View>
                       <View style={styles.simulation.chWidth}>
-                        <TD style={styles.simulation.chColumn}>{step.extensions?.sncf?.ch}</TD>
+                        <TD style={styles.simulation.chColumn}>{step.ch}</TD>
                       </View>
                       <View style={styles.simulation.trackWidth}>
-                        <TD style={styles.simulation.td}>{step.part.track}</TD>
+                        <TD style={styles.simulation.td}>{step.metadata?.trackName}</TD>
                       </View>
                       <View style={styles.simulation.endWidth}>
                         <TD style={styles.simulation.stopColumn}>
-                          {isLastStep || step.duration !== 0 ? getStopTime(step.time) : ''}
+                          {/* {isLastStep || step.stopFor !== 0 ? getStopTime(step.time) : ''} */}
                         </TD>
                       </View>
                       <View style={styles.simulation.passageWidth}>
                         <TD
-                          style={{
-                            ...(step.duration !== 0 && !isLastStep
-                              ? {
-                                  width: `${step.duration < 600 && step.duration >= 60 ? 60 : 70}px`,
-                                  ...styles.simulation.blueStop,
-                                }
-                              : styles.simulation.stopColumn),
-                          }}
+                        // style={{
+                        //   ...(step.stopFor !== 0 && !isLastStep
+                        //     ? {
+                        //         width: `${step.stopFor < 600 && step.stopFor >= 60 ? 60 : 70}px`,
+                        //         ...styles.simulation.blueStop,
+                        //       }
+                        //     : styles.simulation.stopColumn),
+                        // }}
                         >
-                          {
+                          {/* {
                             // eslint-disable-next-line no-nested-ternary
                             !isFirstStep && !isLastStep
-                              ? step.duration !== 0
-                                ? getStopDurationTime(step.duration)
+                              ? step.stopFor !== 0
+                                ? getStopDurationTime(step.stopFor)
                                 : getStopTime(step.time)
                               : ''
-                          }
+                          } */}
                         </TD>
                       </View>
                       <View style={styles.simulation.startWidth}>
                         <TD style={styles.simulation.stopColumn}>
-                          {isFirstStep || (step.duration !== 0 && !isLastStep)
-                            ? getStopTime(step.time + step.duration)
-                            : ''}
+                          {/* {isFirstStep || (step.stopFor !== 0 && !isLastStep)
+                            ? getStopTime(step.time + step.stopFor)
+                            : ''} */}
                         </TD>
                       </View>
                       <View style={styles.simulation.weightWidth}>

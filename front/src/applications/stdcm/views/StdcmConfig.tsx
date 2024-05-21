@@ -198,13 +198,16 @@ const StdcmConfig = ({
                 mapCanvas={mapCanvas}
                 stdcmResults={stdcmResults}
                 rollingStockData={rollingStock}
+                speedLimitByTag={speedLimitByTag}
               />
             )}
             {trainScheduleV2Activated && rollingStock && stdcmV2Results && (
               <StdcmResultsV2
                 mapCanvas={mapCanvas}
                 stdcmResults={stdcmV2Results}
+                pathProperties={pathProperties}
                 rollingStockData={rollingStock}
+                speedLimitByTag={speedLimitByTag}
               />
             )}
           </div>
