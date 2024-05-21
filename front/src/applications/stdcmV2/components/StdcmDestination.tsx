@@ -8,14 +8,18 @@ import type { StdcmConfSliceActions } from 'reducers/osrdconf/stdcmConf';
 import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
-export default function StdcmDestination() {
+export default function StdcmDestination({ isPending = false }: { isPending?: boolean }) {
   const { getDestinationV2 } = useOsrdConfSelectors();
   const { updateDestinationV2 } = useOsrdConfActions() as StdcmConfSliceActions;
   const destination = useSelector(getDestinationV2);
   return (
-    <StdcmCard name="Destination">
+    <StdcmCard name="Destination" disabled={isPending}>
       <div className="stdcm-v2-destination">
-        <StdcmOperationalPoint updatePoint={updateDestinationV2} point={destination} />
+        <StdcmOperationalPoint
+          updatePoint={updateDestinationV2}
+          point={destination}
+          isPending={isPending}
+        />
         <div>
           <select id="destination" name="destination" disabled>
             <option value="a">dès que possible</option>

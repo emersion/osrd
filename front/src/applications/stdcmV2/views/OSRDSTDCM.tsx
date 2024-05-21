@@ -48,7 +48,7 @@ export default function OSRDSTDCM() {
             <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} />
             <StdcmOrigin isPending={isPending} />
             <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} />
-            <StdcmDestination />
+            <StdcmDestination isPending={isPending} />
             <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} />
             <Button
               label="Obtenir la simulation"
