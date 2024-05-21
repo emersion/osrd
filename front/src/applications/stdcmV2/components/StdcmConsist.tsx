@@ -122,6 +122,7 @@ export default function StdcmConsist({ isPending = false }: { isPending?: boolea
             label="Engin de traction"
             value={filters.text.toUpperCase()}
             onChange={onInputChange}
+            autoComplete="off"
             onBlur={onInputOnBlur}
             disabled={isPending}
             options={filteredRollingStockList.map(

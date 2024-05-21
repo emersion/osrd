@@ -86,6 +86,7 @@ export default function StdcmOperationalPoint({
   }, [point]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('onInputChange', e.target.value);
     setSearchTerm(e.target.value);
     if (e.target.value.trim().length === 0) {
       dispatch(updatePoint(null));
@@ -121,38 +122,35 @@ export default function StdcmOperationalPoint({
     }
   };
 
-  const buildOptions = (
-    points: SearchResultItemOperationalPoint[],
-    getLabelFn: (p: SearchResultItemOperationalPoint) => string
-  ) =>
-    points.map((p: SearchResultItemOperationalPoint) => ({
+  const operationalPointsSguggestions = sortedResults.map(
+    (p: SearchResultItemOperationalPoint) => ({
       value: p,
-      label: getLabelFn(p),
+      label: getLabel({
+        trigram: p.trigram,
+        name: p.name,
+        ch: p.ch,
+        ci: p.ci.toString(),
+      }),
       ...p,
-    }));
+    })
+  );
 
   return (
     <div className="flex">
-      <div className="col-9">
+      <div className="col-8">
         <StdcmSuggestions
           id="ci"
           label="CI"
           value={searchTerm}
           onChange={onInputChange}
-          options={buildOptions(sortedResults, (p) =>
-            getLabel({
-              trigram: p.trigram,
-              name: p.name,
-              ch: p.ch,
-              ci: p.ci.toString(),
-            })
-          )}
+          autoComplete="off"
+          options={operationalPointsSguggestions}
           onSelectSuggestion={onSelectSuggestion}
           disabled={isPending}
         />
       </div>
 
-      <div className="w-100 py-2 col-3">
+      <div className="w-100 py-2 col-4">
         <SelectSNCF
           label="CH"
           id="ch"
