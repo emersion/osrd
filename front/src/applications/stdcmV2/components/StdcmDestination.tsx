@@ -22,7 +22,7 @@ export default function StdcmDestination({ isPending = false }: { isPending?: bo
         />
         <div>
           <select id="destination" name="destination" disabled>
-            <option value="a">dès que possible</option>
+            <option value="asSoonAsPossible">dès que possible</option>
           </select>
         </div>
       </div>

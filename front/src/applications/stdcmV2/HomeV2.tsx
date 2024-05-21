@@ -2,12 +2,12 @@ import React from 'react';
 
 import { Route, Routes } from 'react-router-dom';
 
-import OSRDSTDCM from './views/OSRDSTDCM';
+import StdcmViewV2 from './views/StdcmViewV2';
 
 export default function HomeStdcmV2() {
   return (
     <Routes>
-      <Route path="" element={<OSRDSTDCM />} />
+      <Route path="" element={<StdcmViewV2 />} />
     </Routes>
   );
 }

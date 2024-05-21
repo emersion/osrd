@@ -20,7 +20,7 @@ import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSc
 import { updateSelectedTrainId, updateSelectedProjection } from 'reducers/osrdsimulation/actions';
 import { useAppDispatch } from 'store';
 
-const StdcmView = () => {
+const StdcmViewV1 = () => {
   const dispatch = useAppDispatch();
   const { getPathSteps } = useOsrdConfSelectors();
   const infraId = useInfraID();
@@ -115,4 +115,4 @@ const StdcmView = () => {
   );
 };
 
-export default StdcmView;
+export default StdcmViewV1;

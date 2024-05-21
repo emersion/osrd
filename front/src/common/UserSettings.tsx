@@ -8,8 +8,16 @@ import { useSelector } from 'react-redux';
 import InputSNCF from 'common/BootstrapSNCF/InputSNCF';
 import { ModalBodySNCF, ModalHeaderSNCF } from 'common/BootstrapSNCF/ModalSNCF';
 import SwitchSNCF, { SWITCH_TYPES } from 'common/BootstrapSNCF/SwitchSNCF/SwitchSNCF';
-import { updateUserPreferences, switchTrainScheduleV2Activated } from 'reducers/user';
-import { getTrainScheduleV2Activated, getUserPreferences } from 'reducers/user/userSelectors';
+import {
+  updateUserPreferences,
+  switchTrainScheduleV2Activated,
+  switchSTDCMV2Activated,
+} from 'reducers/user';
+import {
+  getTrainScheduleV2Activated,
+  getUserPreferences,
+  getSTDCMV2Activated,
+} from 'reducers/user/userSelectors';
 import { useAppDispatch } from 'store';
 import { useDebounce } from 'utils/helpers';
 
@@ -18,6 +26,7 @@ import { useOsrdConfActions } from './osrdContext';
 export default function UserSettings() {
   const userPreferences = useSelector(getUserPreferences);
   const trainScheduleV2Activated = useSelector(getTrainScheduleV2Activated);
+  const STDCMV2Activated = useSelector(getSTDCMV2Activated);
   const [safeWordText, setSafeWordText] = useState(userPreferences.safeWord);
   const dispatch = useAppDispatch();
 
@@ -74,6 +83,22 @@ export default function UserSettings() {
               checked={trainScheduleV2Activated}
             />
             <p className="ml-3">TrainSchedule V2</p>
+          </div>
+        </div>
+        <div className="col-lg-6">
+          <div className="d-flex align-items-center mt-3">
+            <SwitchSNCF
+              id="stdcm-version-switch"
+              type={SWITCH_TYPES.switch}
+              name="stdcm-version-switch"
+              onChange={() => {
+                dispatch(switchSTDCMV2Activated());
+                dispatch(updateScenarioID(undefined));
+                dispatch(updateTimetableID(undefined));
+              }}
+              checked={STDCMV2Activated}
+            />
+            <p className="ml-3">STDCM V2</p>
           </div>
         </div>
       </ModalBodySNCF>

@@ -8,6 +8,7 @@ import {
   type UserState,
   updateUserPreferences,
   switchTrainScheduleV2Activated,
+  switchSTDCMV2Activated,
 } from 'reducers/user';
 import { createStoreWithoutMiddleware } from 'store';
 
@@ -80,5 +81,12 @@ describe('userReducer', () => {
     store.dispatch(switchTrainScheduleV2Activated());
     const userState = store.getState().user;
     expect(userState.trainScheduleV2Activated).toBe(true);
+  });
+
+  it('should handle switchSTDCMV2Activated', () => {
+    const store = createStore(userInitialState);
+    store.dispatch(switchSTDCMV2Activated());
+    const userState = store.getState().user;
+    expect(userState.STDCMV2Activated).toBe(true);
   });
 });

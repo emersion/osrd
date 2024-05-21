@@ -1,20 +1,14 @@
 import React from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { Route, Routes } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-import NavBarSNCF from 'common/BootstrapSNCF/NavBarSNCF';
+import HomeStdcmV2 from 'applications/stdcmV2/HomeV2';
+import { getSTDCMV2Activated } from 'reducers/user/userSelectors';
 
-import StdcmView from './views/StdcmView';
+import HomeStdcmV1 from './HomeV1';
 
 export default function HomeStdcm() {
-  const { t } = useTranslation('home/home');
-  return (
-    <>
-      <NavBarSNCF appName={t('stdcm')} />
-      <Routes>
-        <Route path="" element={<StdcmView />} />
-      </Routes>
-    </>
-  );
+  const STDCMV2Activated = useSelector(getSTDCMV2Activated);
+
+  return STDCMV2Activated ? <HomeStdcmV2 /> : <HomeStdcmV1 />;
 }

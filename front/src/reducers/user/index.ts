@@ -9,6 +9,7 @@ export interface UserState {
   userPreferences: { safeWord: string };
   account: Record<string, string>;
   trainScheduleV2Activated: boolean;
+  STDCMV2Activated: boolean;
 }
 
 export const userInitialState: UserState = {
@@ -18,6 +19,7 @@ export const userInitialState: UserState = {
   userPreferences: { safeWord: '' },
   account: {},
   trainScheduleV2Activated: false,
+  STDCMV2Activated: false,
 };
 
 export const userSlice = createSlice({
@@ -47,6 +49,9 @@ export const userSlice = createSlice({
     switchTrainScheduleV2Activated(state) {
       state.trainScheduleV2Activated = !state.trainScheduleV2Activated;
     },
+    switchSTDCMV2Activated(state) {
+      state.STDCMV2Activated = !state.STDCMV2Activated;
+    },
   },
 });
 
@@ -56,6 +61,7 @@ export const {
   logoutSuccess,
   updateUserPreferences,
   switchTrainScheduleV2Activated,
+  switchSTDCMV2Activated,
 } = userSlice.actions;
 
 export default userSlice.reducer;
