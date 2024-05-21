@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { Input } from '@osrd-project/ui-core';
-import cx from 'classnames';
 import { useSelector } from 'react-redux';
 
 import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';

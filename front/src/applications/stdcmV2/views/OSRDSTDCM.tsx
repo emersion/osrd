@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 import { Button } from '@osrd-project/ui-core';
 import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
@@ -14,6 +14,7 @@ import StdcmConsist from '../components/StdcmConsist';
 import StdcmDefaultCard from '../components/StdcmDefaultCard';
 import StdcmDestination from '../components/StdcmDestination';
 import StdcmHeader from '../components/StdcmHeader';
+import StdcmLoader from '../components/StdcmLoader';
 import StdcmOrigin from '../components/StdcmOrigin';
 
 // TODO
@@ -24,10 +25,20 @@ export default function OSRDSTDCM() {
   const studyID = useSelector(getStudyID);
   const projectID = useSelector(getProjectID);
   const scenarioID = useSelector(getScenarioID);
-  const { launchStdcmRequestV2, setCurrentStdcmRequestStatus, currentStdcmRequestStatus } =
-    useStdcm();
+  const {
+    launchStdcmRequestV2,
+    cancelStdcmRequest,
+    setCurrentStdcmRequestStatus,
+    currentStdcmRequestStatus,
+  } = useStdcm();
   const isPending = currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending;
-  console.log('isPending', currentStdcmRequestStatus, isPending);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isPending) {
+      loaderRef?.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isPending]);
 
   return (
     <div className="stdcm-v2">
@@ -57,6 +68,7 @@ export default function OSRDSTDCM() {
                 launchStdcmRequestV2();
               }}
             />
+            {isPending && <StdcmLoader cancelStdcmRequest={cancelStdcmRequest} ref={loaderRef} />}
           </div>
         </div>
         <div className="osrd-config-item-container osrd-config-item-container-map stdcm-v2-map">
