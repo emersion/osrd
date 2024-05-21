@@ -17,6 +17,7 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
   onSelectSuggestion,
   onFocus,
   onBlur,
+  disabled,
   ...rest
 }: StdcmSuggestionsProps<T>) {
   const [isSelectVisible, setIsSelectVisible] = useState(!isEmpty(options));
@@ -41,6 +42,7 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
           setIsFocused(false);
           onBlur?.(e);
         }}
+        disabled={disabled}
       />
       {isSelectVisible && (
         <div className="selector-select">
@@ -52,6 +54,7 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
             }}
             setSelectVisibility={setIsSelectVisible}
             withSearch={false}
+            disabled={disabled}
             noTogglingHeader
             isOpened
             bgWhite

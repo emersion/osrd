@@ -22,9 +22,14 @@ type UpdatePointActions =
 type StdcmOperationalPointProps = {
   updatePoint: UpdatePointActions;
   point: PathStep | null;
+  isPending?: boolean;
 };
 
-export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOperationalPointProps) {
+export default function StdcmOperationalPoint({
+  updatePoint,
+  point,
+  isPending,
+}: StdcmOperationalPointProps) {
   const dispatch = useAppDispatch();
 
   const { searchTerm, chCodeFilter, chOptions, sortedResults, setSearchTerm, setChCodeFilter } =
@@ -143,6 +148,7 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
             })
           )}
           onSelectSuggestion={onSelectSuggestion}
+          disabled={isPending}
         />
       </div>
 
@@ -153,6 +159,7 @@ export default function StdcmOperationalPoint({ updatePoint, point }: StdcmOpera
           value={chCodeFilter}
           options={selectOptions}
           onChange={onSelectChCodeFilter}
+          disabled={isPending}
         />
       </div>
     </div>

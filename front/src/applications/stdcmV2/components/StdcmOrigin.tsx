@@ -11,7 +11,7 @@ import { useAppDispatch } from 'store';
 import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
-export default function StdcmOrigin() {
+export default function StdcmOrigin({ isPending = false }: { isPending?: boolean }) {
   const { getOriginV2, getOriginDate, getOriginTime } = useOsrdConfSelectors();
   const { updateOriginV2, updateOriginDate, updateOriginTime } =
     useOsrdConfActions() as StdcmConfSliceActions;
@@ -20,9 +20,9 @@ export default function StdcmOrigin() {
   const originTime = useSelector(getOriginTime);
   const dispatch = useAppDispatch();
   return (
-    <StdcmCard name="Origine" hasTip>
+    <StdcmCard name="Origine" disabled={isPending} hasTip>
       <div className="stdcm-v2-origin">
-        <StdcmOperationalPoint updatePoint={updateOriginV2} point={origin} />
+        <StdcmOperationalPoint updatePoint={updateOriginV2} point={origin} isPending={isPending} />
         <div className="stdcm-v2-origin__parameters d-flex">
           <div className="col-3">
             <InputSNCF
@@ -32,6 +32,7 @@ export default function StdcmOrigin() {
               name="dateOrigin"
               onChange={(e) => dispatch(updateOriginDate(e.target.value))}
               value={originDate}
+              disabled={isPending}
             />
           </div>
           <div className="col-3">
@@ -43,10 +44,11 @@ export default function StdcmOrigin() {
                 dispatch(updateOriginTime(e.target.value))
               }
               value={originTime}
+              disabled={isPending}
             />
           </div>
         </div>
-        <StdcmAllowances />
+        <StdcmAllowances disabled={isPending} />
       </div>
     </StdcmCard>
   );

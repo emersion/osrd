@@ -46,7 +46,7 @@ export default function OSRDSTDCM() {
           <div className="stdcm-v2-simulation-itinirary">
             {/* //TODO: rename StdcmDefaultCard */}
             <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} />
-            <StdcmOrigin />
+            <StdcmOrigin isPending={isPending} />
             <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} />
             <StdcmDestination />
             <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} />
