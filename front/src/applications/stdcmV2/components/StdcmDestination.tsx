@@ -17,19 +17,8 @@ export default function StdcmDestination() {
       <div className="stdcm-v2-destination">
         <StdcmOperationalPoint updatePoint={updateDestinationV2} point={destination} />
         <div>
-          {/* <Select
-          id="destination"
-          label="Destination"
-          options={[
-            { value: 'a', label: 'dès que possible' },
-            { value: 'b', label: 'B' },
-            { value: 'c', label: 'C' },
-          ]}
-        /> */}
-          <select id="destination" name="destination">
+          <select id="destination" name="destination" disabled>
             <option value="a">dès que possible</option>
-            <option value="b">B</option>
-            <option value="c">C</option>
           </select>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Input } from '@osrd-project/ui-core';
+import cx from 'classnames';
 import { useSelector } from 'react-redux';
 
 import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
@@ -38,7 +39,7 @@ function ConsistCardTitle({
   );
 }
 
-export default function StdcmConsist() {
+export default function StdcmConsist({ isPending = false }: { isPending?: boolean }) {
   const { speedLimitByTag, speedLimitsByTags, dispatchUpdateSpeedLimitByTag } =
     useStoreDataForSpeedLimitByTagSelector();
 
@@ -110,7 +111,11 @@ export default function StdcmConsist() {
   }, [selectedRs]);
 
   return (
-    <StdcmCard name="Convoi" title={<ConsistCardTitle rollingStock={selectedRs} />}>
+    <StdcmCard
+      name="Convoi"
+      title={<ConsistCardTitle rollingStock={selectedRs} />}
+      disabled={isPending}
+    >
       <div className="stdcm-v2-consist">
         <div>
           <StdcmSuggestions
@@ -119,6 +124,7 @@ export default function StdcmConsist() {
             value={filters.text.toUpperCase()}
             onChange={onInputChange}
             onBlur={onInputOnBlur}
+            disabled={isPending}
             options={filteredRollingStockList.map(
               (rs: LightRollingStockWithLiveries) =>
                 ({
@@ -137,6 +143,7 @@ export default function StdcmConsist() {
         </div>
         <p className="stdcm-v2-consist__title">Limitation de vitesse</p>
         <SpeedLimitByTagSelector
+          disabled={isPending}
           selectedSpeedLimitByTag={speedLimitByTag}
           speedLimitsByTags={speedLimitsByTags}
           dispatchUpdateSpeedLimitByTag={dispatchUpdateSpeedLimitByTag}

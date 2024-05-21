@@ -21,6 +21,7 @@ interface SelectProps<T> {
   isOpened?: boolean;
   setSelectVisibility?: (arg: boolean) => void;
   noTogglingHeader?: boolean;
+  disabled?: boolean;
 }
 
 function SelectImproved<T extends string | SelectOptionObject>({
@@ -39,6 +40,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
   isOpened = false,
   setSelectVisibility,
   noTogglingHeader = false,
+  disabled,
 }: SelectProps<T>) {
   const [isOpen, setIsOpen] = useState(isOpened);
   const [selectedItem, setSelectedItem] = useState<T | undefined>(value);
@@ -78,6 +80,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
       <div className="d-flex flex-column flex-sm-row" data-role="add">
         <div className="form-control-container w-100 has-left-icon">
           <button
+            disabled={disabled}
             type="button"
             className="btn btn-primary btn-block btn-sm"
             onClick={() => {
@@ -111,7 +114,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
           role="listitem"
           key={`${index}-${getOptionValue(option)}`}
         >
-          <button type="button" onClick={() => selectItem(option)}>
+          <button type="button" disabled={disabled} onClick={() => selectItem(option)}>
             {getOptionLabel(option)}
           </button>
         </span>
@@ -138,7 +141,10 @@ function SelectImproved<T extends string | SelectOptionObject>({
               className={cx('input-group', { 'input-group-sm': sm })}
               tabIndex={0}
               role="button"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => {
+                if (disabled) return;
+                setIsOpen(!isOpen);
+              }}
             >
               <p
                 className={cx('form-control is-placeholder d-flex align-items-center', {
@@ -156,6 +162,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
                   type="button"
                   aria-expanded="false"
                   aria-controls="selecttoggle"
+                  disabled={disabled}
                 >
                   <i
                     className={`${isOpen ? 'icons-arrow-up' : 'icons-arrow-down'} icons-size-x75`}
@@ -179,6 +186,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
                     className="form-control form-control-sm clear-option"
                     onChange={(e) => setFilterText(e.target.value)}
                     value={filterText}
+                    disabled={disabled}
                   />
                   <span className="form-control-state" />
                   <span className="form-control-icon">
@@ -190,6 +198,7 @@ function SelectImproved<T extends string | SelectOptionObject>({
                       className="btn-clear btn-primary"
                       style={{ width: '2em', height: '2em' }}
                       onClick={() => setFilterText('')}
+                      disabled={disabled}
                     >
                       <span className="sr-only">Clear text</span>
                       <i className="icons-close" aria-hidden="true" />
@@ -219,6 +228,8 @@ function SelectImproved<T extends string | SelectOptionObject>({
           aria-label="close selection display"
           tabIndex={0}
           onClick={() => {
+            if (disabled) return;
+
             setIsOpen(false);
             if (setSelectVisibility) setSelectVisibility(false);
           }}

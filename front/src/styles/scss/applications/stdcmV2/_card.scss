@@ -1,7 +1,6 @@
 .stdcm-v2-card {
     border-radius: 8px;
     box-shadow: 0px 1px 0px rgba(255, 255, 255, 1) inset, 0px 4px 7px -3px rgba(24, 68, 239, 0.19), 0px 1px 3px rgba(49, 46, 43, 0.2);
-    opacity: 1;
     background-color: rgba(255, 255, 255, 1);
     height: fit-content;
     position: relative;
@@ -21,7 +20,6 @@
     .stdcm-v2-card__header {
         border-radius: 8px 8px 0px 0px;
         box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.75) inset;
-        opacity: 1;
         background-color: rgba(235, 235, 234, 1);
         color: rgba(0, 0, 0, 1);
         font-family: "IBMPlexSans-SemiBold";
@@ -37,4 +35,10 @@
     .stdcm-v2-card__body {
         padding: 14px 21px 21px 21px;
     }
+
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
 }
