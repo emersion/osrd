@@ -136,6 +136,8 @@ export default function useStdcm() {
         setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.rejected);
         dispatch(setFailure(castErrorToFailure(e, { name: t('stdcm:stdcmError') })));
       }
+    } else {
+      setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.rejected);
     }
   };
 

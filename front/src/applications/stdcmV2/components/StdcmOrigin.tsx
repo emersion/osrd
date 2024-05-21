@@ -24,7 +24,7 @@ export default function StdcmOrigin({ isPending = false }: { isPending?: boolean
       <div className="stdcm-v2-origin">
         <StdcmOperationalPoint updatePoint={updateOriginV2} point={origin} isPending={isPending} />
         <div className="stdcm-v2-origin__parameters d-flex">
-          <div className="col-3">
+          <div className="col-6">
             <InputSNCF
               id="dateOrigin"
               label="Date"
@@ -35,7 +35,7 @@ export default function StdcmOrigin({ isPending = false }: { isPending?: boolean
               disabled={isPending}
             />
           </div>
-          <div className="col-3">
+          <div className="col-6">
             <InputSNCF
               type="time"
               label="Heure"
