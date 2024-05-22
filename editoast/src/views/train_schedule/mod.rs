@@ -733,6 +733,8 @@ async fn create_backend_request_payload(
             position: None,
             duration: waypoint.duration,
             location: Some(waypoint.location.clone()),
+            // float comparison needs an epsilon. In our case, a tenth of a second is ok.
+            on_stop_signal: waypoint.duration > 0.1,
         };
         stops.push(stop);
     }

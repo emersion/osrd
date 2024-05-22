@@ -33,7 +33,7 @@ fun runScheduleMetadataExtractor(
     val legacyStops =
         schedule
             .filter { it.stopFor != null }
-            .map { TrainStop(it.pathOffset.distance.meters, it.stopFor!!.seconds) }
+            .map { TrainStop(it.pathOffset.distance.meters, it.stopFor!!.seconds, it.onStopSignal) }
 
     val rawInfra = fullInfra.rawInfra
     val loadedSignalInfra = fullInfra.loadedSignalInfra
@@ -197,7 +197,7 @@ fun makeSimpleReportTrain(
     val stops =
         schedule
             .filter { it.stopFor != null }
-            .map { TrainStop(it.pathOffset.distance.meters, it.stopFor!!.seconds) }
+            .map { TrainStop(it.pathOffset.distance.meters, it.stopFor!!.seconds, it.onStopSignal) }
     val envelopeStopWrapper = EnvelopeStopWrapper(envelope, stops)
 
     // Iterate over the points and simplify the results

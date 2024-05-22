@@ -332,6 +332,7 @@ async fn import_item(
             position: Some(pw.path_offset),
             location: None,
             duration: 0.,
+            on_stop_signal: false,
         })
         .collect();
 
@@ -521,6 +522,8 @@ fn build_simulation_request(
                     position: Some(*path_offset),
                     location: None,
                     duration,
+                    // float comparison needs an epsilon. In our case, a tenth of a second is ok.
+                    on_stop_signal: duration > 0.1,
                 }
             })
             .collect();
