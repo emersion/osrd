@@ -29,6 +29,7 @@ import { useAppDispatch } from 'store';
 import { getSimulationResultsV2, selectProjectionV2 } from './getSimulationResultsV2';
 import ImportTrainScheduleV2 from './ImportTrainScheduleV2';
 import ManageTrainScheduleV2 from './ManageTrainScheduleV2';
+import SimulationResultsV2 from './SimulationResultsV2';
 
 type SimulationParams = {
   projectId: string;
@@ -46,7 +47,6 @@ const ScenarioV2 = () => {
   const [collapsedTimetable, setCollapsedTimetable] = useState(false);
   const [isInfraLoaded, setIsInfraLoaded] = useState(false);
   const [reloadCount, setReloadCount] = useState(1);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [spaceTimeData, setSpaceTimeData] = useState<PostV2TrainScheduleProjectPathApiResponse>();
   const [trainResultsToFetch, setTrainResultsToFetch] = useState<number[]>();
   const isUpdating = useSelector((state: RootState) => state.osrdsimulation.isUpdating);
@@ -346,13 +346,13 @@ const ScenarioV2 = () => {
                     </div>
                   </div>
                 )}
-                {/* {isInfraLoaded && infra && (
+                {isInfraLoaded && infra && (
                   <SimulationResultsV2
                     collapsedTimetable={collapsedTimetable}
-                    // setTrainResultsToFetch={setTrainResultsToFetch}
+                    setTrainResultsToFetch={setTrainResultsToFetch}
                     spaceTimeData={spaceTimeData}
                   />
-                )} */}
+                )}
               </div>
             </div>
           </div>

@@ -23,7 +23,7 @@ type SubmitConfAddTrainScheduleProps = {
   //   refetchTimetable: () => void;
   //   refetchConflicts: () => void;
   setIsWorking: (isWorking: boolean) => void;
-  //   setTrainResultsToFetch: (trainScheduleIds?: number[]) => void;
+  setTrainResultsToFetch: (trainScheduleIds?: number[]) => void;
 };
 
 const AddTrainScheduleV2Button = ({
@@ -31,7 +31,7 @@ const AddTrainScheduleV2Button = ({
   //   refetchTimetable,
   //   refetchConflicts,
   setIsWorking,
-  //   setTrainResultsToFetch,
+  setTrainResultsToFetch,
 }: SubmitConfAddTrainScheduleProps) => {
   const [postTrainSchedule] =
     enhancedEditoastApi.endpoints.postV2TimetableByIdTrainSchedule.useMutation();
@@ -73,7 +73,7 @@ const AddTrainScheduleV2Button = ({
       }
 
       try {
-        await postTrainSchedule({
+        const newTrain = await postTrainSchedule({
           id: timetableId,
           body: trainScheduleParams,
         }).unwrap();
@@ -85,7 +85,7 @@ const AddTrainScheduleV2Button = ({
           })
         );
         setIsWorking(false);
-        // setTrainResultsToFetch(newTrainIds);
+        setTrainResultsToFetch(newTrain.map((train) => train.id));
         // refetchTimetable();
         // refetchConflicts();
       } catch (e) {

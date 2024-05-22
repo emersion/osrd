@@ -68,7 +68,7 @@ const TimetableManageTrainScheduleV2 = ({
                 // refetchTimetable={refetchTimetable}
                 setIsWorking={setIsWorking}
                 // refetchConflicts={refetchConflicts}
-                // setTrainResultsToFetch={setTrainResultsToFetch}
+                setTrainResultsToFetch={setTrainResultsToFetch}
               />
             )}
             <TrainAddingSettings />

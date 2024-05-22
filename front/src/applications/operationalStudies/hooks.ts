@@ -1,20 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 
 import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
 import {
   osrdEditoastApi,
+  type PathProperties,
   type PostV2InfraByInfraIdPathPropertiesApiArg,
   type PostV2InfraByInfraIdPathfindingBlocksApiArg,
 } from 'common/api/osrdEditoastApi';
-import { useOsrdConfActions, useOsrdConfSelectors } from 'common/osrdContext';
+import { useInfraID, useOsrdConfActions, useOsrdConfSelectors } from 'common/osrdContext';
 import { formatSuggestedOperationalPoints, insertViasInOPs } from 'modules/pathfinding/utils';
 import { getSupportedElectrification, isThermal } from 'modules/rollingStock/helpers/electric';
+import type { SimulationPowerRestrictionRangeV2 } from 'modules/simulationResult/components/SpeedSpaceChart/types';
 import { adjustConfWithTrainToModifyV2 } from 'modules/trainschedule/components/ManageTrainSchedule/helpers/adjustConfWithTrainToModify';
 import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSchedule/types';
 import { setFailure } from 'reducers/main';
 import type { PathStep } from 'reducers/osrdconf/types';
+import { getTrainIdUsedForProjection, getSelectedTrainId } from 'reducers/osrdsimulation/selectors';
 import { useAppDispatch } from 'store';
 import { castErrorToFailure } from 'utils/error';
 import { getPointCoordinates } from 'utils/geometry';
@@ -131,6 +134,98 @@ export const useSetupItineraryForTrainUpdate = (
 
     if (trainScheduleIDsToModify.length > 0) setupItineraryForTrainUpdate();
   }, [trainScheduleIDsToModify]);
+};
+
+/**
+ * Prepare datas to be used in simulation results
+ */
+export const useSimulationResults = () => {
+  const infraId = useInfraID();
+  const selectedTrainId = useSelector(getSelectedTrainId);
+  const trainIdUsedForProjection = useSelector(getTrainIdUsedForProjection);
+
+  const [pathProperties, setPathProperties] = useState<PathProperties>();
+
+  const { data: selectedTrainSchedule } = osrdEditoastApi.endpoints.getV2TrainScheduleById.useQuery(
+    {
+      id: selectedTrainId as number,
+    },
+    { skip: !selectedTrainId }
+  );
+
+  const { data: selectedTrainRollingStock } =
+    osrdEditoastApi.endpoints.getLightRollingStockNameByRollingStockName.useQuery(
+      {
+        rollingStockName: selectedTrainSchedule?.rolling_stock_name as string,
+      },
+      { skip: !selectedTrainSchedule }
+    );
+
+  const { data: pathfindingResult } = osrdEditoastApi.endpoints.getV2TrainScheduleByIdPath.useQuery(
+    {
+      id: trainIdUsedForProjection as number,
+      infraId: infraId as number,
+    },
+    { skip: !trainIdUsedForProjection || !infraId }
+  );
+
+  const { data: trainSimulation } =
+    osrdEditoastApi.endpoints.getV2TrainScheduleByIdSimulation.useQuery(
+      { id: selectedTrainId as number, infraId: infraId as number },
+      { skip: !selectedTrainId || !infraId }
+    );
+
+  const [postPathProperties] =
+    enhancedEditoastApi.endpoints.postV2InfraByInfraIdPathProperties.useMutation();
+
+  // Format power restrictions ranges to match a start/stop position on path associated with value
+  const formattedPowerRestrictions =
+    pathfindingResult &&
+    pathfindingResult.status === 'success' &&
+    selectedTrainSchedule &&
+    selectedTrainSchedule.power_restrictions
+      ? selectedTrainSchedule.power_restrictions.map((powerRestriction) => {
+          const startStep = selectedTrainSchedule.path.findIndex(
+            (step) => step.id === powerRestriction.from
+          );
+          const stopStep = selectedTrainSchedule.path.findIndex(
+            (step) => step.id === powerRestriction.to
+          );
+          return {
+            start: startStep !== -1 ? pathfindingResult.path_items_positions[startStep] : 0,
+            stop: stopStep !== -1 ? pathfindingResult.path_items_positions[stopStep] : 0,
+            code: powerRestriction.value,
+          };
+        })
+      : [];
+
+  useEffect(() => {
+    const getPathProperties = async () => {
+      if (infraId && pathfindingResult && pathfindingResult.status === 'success') {
+        const pathPropertiesParams: PostV2InfraByInfraIdPathPropertiesApiArg = {
+          infraId,
+          props: ['electrifications', 'geometry', 'operational_points', 'curves', 'slopes'],
+          pathPropertiesInput: {
+            track_section_ranges: pathfindingResult.track_section_ranges,
+          },
+        };
+        const pathPropertiesResult = await postPathProperties(pathPropertiesParams).unwrap();
+
+        setPathProperties(pathPropertiesResult);
+      }
+    };
+    getPathProperties();
+  }, [pathfindingResult, infraId]);
+
+  return {
+    selectedTrainId,
+    selectedTrainRollingStock,
+    selectedTrainPowerRestrictions:
+      formattedPowerRestrictions as SimulationPowerRestrictionRangeV2[],
+    trainSimulation,
+    pathProperties,
+    pathLength: pathfindingResult?.status === 'success' ? pathfindingResult.length : 0,
+  };
 };
 
 export default useSetupItineraryForTrainUpdate;

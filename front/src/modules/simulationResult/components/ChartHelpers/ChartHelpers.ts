@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import type { BaseType } from 'd3';
 import { has, last, memoize } from 'lodash';
 
+import type { ReportTrainData } from 'modules/simulationResult/components/SpeedSpaceChart/types';
 import type { ChartAxes, ListValues, XAxis, Y2Axis, YAxis } from 'modules/simulationResult/consts';
 import type {
   Position,
@@ -269,6 +270,24 @@ export const interpolateOnPosition = (
   const bisect = d3.bisector<PositionSpeedTime, number>((d) => d.position).left;
   const index = bisect(dataSimulation.speed, positionLocal, 1);
   const bisection = [dataSimulation.speed[index - 1], dataSimulation.speed[index]];
+  if (bisection[1]) {
+    const distance = bisection[1].position - bisection[0].position;
+    const distanceFromPosition = positionLocal - bisection[0].position;
+    const proportion = distanceFromPosition / distance;
+    return sec2d3datetime(d3.interpolateNumber(bisection[0].time, bisection[1].time)(proportion));
+  }
+  return null;
+};
+
+// Interpolation of cursor based on space position
+// ['position', 'speed']
+export const interpolateOnPositionV2 = (
+  dataSimulation: { baseSpeedData: ReportTrainData[] },
+  positionLocal: number
+) => {
+  const bisect = d3.bisector<PositionSpeedTime, number>((d) => d.position).left;
+  const index = bisect(dataSimulation.baseSpeedData, positionLocal, 1);
+  const bisection = [dataSimulation.baseSpeedData[index - 1], dataSimulation.baseSpeedData[index]];
   if (bisection[1]) {
     const distance = bisection[1].position - bisection[0].position;
     const distanceFromPosition = positionLocal - bisection[0].position;
