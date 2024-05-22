@@ -2302,6 +2302,11 @@ export type OrderedRouteElement =
   | {
       Switch: string;
     };
+export type TrackOffset = {
+  /** Offset in mm */
+  offset: number;
+  track: string;
+};
 export type LightModeEffortCurves = {
   is_electric: boolean;
 };

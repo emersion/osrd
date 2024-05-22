@@ -17,6 +17,8 @@ import type {
 import type { ExtendedEditorContextType } from 'applications/editor/types';
 import { LoaderFill } from 'common/Loaders';
 
+import { compareTrackRange } from '../utils';
+
 const DEFAULT_DISPLAYED_RANGES_COUNT = 5;
 
 const TrackRangesList = () => {
@@ -32,9 +34,10 @@ const TrackRangesList = () => {
   const displayedRanges = showAll ? ranges : ranges.slice(0, DEFAULT_DISPLAYED_RANGES_COUNT);
 
   const rangesByRoute = groupBy(displayedRanges, (range) => {
+    const findCurrentRange = compareTrackRange(range);
     // eslint-disable-next-line no-restricted-syntax
     for (const [routeKey, { trackRanges }] of Object.entries(routeElements)) {
-      if (trackRanges.includes(range)) {
+      if (trackRanges.some(findCurrentRange)) {
         return routeKey;
       }
     }
@@ -45,7 +48,10 @@ const TrackRangesList = () => {
     const trackState = trackSectionsCache[range.track];
 
     return (
-      <li key={i} className="mb-4 d-flex flex-row align-items-center">
+      <li
+        key={`track-range-${range.track}-${i}`}
+        className="mb-4 d-flex flex-row align-items-center"
+      >
         {(!trackState || trackState.type === 'loading') && (
           <div className="position-relative w-100" style={{ height: 50 }}>
             <LoaderFill className="bg-transparent" />
@@ -79,8 +85,8 @@ const TrackRangesList = () => {
     );
   };
   const fullTrackList = Object.entries(rangesByRoute).reduce<JSX.Element[]>(
-    (acc, [route, tracks]) => {
-      const routeJSX = <h3>{route}</h3>;
+    (acc, [route, tracks], index) => {
+      const routeJSX = <h3 key={`route-${index}`}>{route}</h3>;
       const routeTracks = tracks.map(makeTrackJSX);
       return [...acc, routeJSX, ...routeTracks];
     },

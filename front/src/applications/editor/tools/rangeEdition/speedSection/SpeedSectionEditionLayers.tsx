@@ -20,7 +20,6 @@ import type {
 import {
   generatePslSignFeatures,
   getTrackRangeFeatures,
-  getTracksBetweenExtremeSwitches,
   isOnModeMove,
   speedSectionIsPsl,
 } from 'applications/editor/tools/rangeEdition/utils';
@@ -73,7 +72,7 @@ export const SpeedSectionEditionLayers = () => {
     return res;
   }, [interactionState, hoveredItem, entity, selectedSwitches]);
 
-  const speedSectionsFeature: FeatureCollection = useMemo(() => {
+  const highlightedTracksFeature: FeatureCollection = useMemo(() => {
     const flatEntity = flattenEntity(entity);
     // generate trackRangeFeatures
     const trackRanges = Object.values(pick(routeElements, highlightedRoutes)).flatMap(
@@ -96,6 +95,19 @@ export const SpeedSectionEditionLayers = () => {
     }
     return featureCollection([...trackRangeFeatures, ...pslSignFeatures]);
   }, [entity, highlightedRoutes, trackSectionsCache]);
+
+  const speedSectionsFeature: FeatureCollection = useMemo(() => {
+    const flatEntity = flattenEntity(entity);
+    // generate trackRangeFeatures
+    const trackRanges = entity.properties?.track_ranges || [];
+    const trackRangeFeatures = trackRanges.flatMap((range, i) => {
+      const trackState = trackSectionsCache[range.track];
+      return trackState?.type === 'success'
+        ? getTrackRangeFeatures(trackState.track, range, i, flatEntity.properties)
+        : [];
+    }) as Feature<LineString | Point>[];
+    return featureCollection([...trackRangeFeatures]);
+  }, [entity, trackSectionsCache]);
 
   const { speedSectionLayerProps, pslLayerProps } = useMemo(() => {
     const context = {
@@ -270,6 +282,7 @@ export const SpeedSectionEditionLayers = () => {
         isEmphasized={false}
         infraID={infraID}
       />
+      {/* Colored sections where the speed limit actually applies */}
       <Source
         type="geojson"
         data={!isPSL ? speedSectionsFeature : emptyFeatureCollection}
@@ -278,6 +291,13 @@ export const SpeedSectionEditionLayers = () => {
         {speedSectionLayerProps.map((props, i) => (
           <Layer {...props} key={i} />
         ))}
+      </Source>
+      {/* complete routes (dashed) */}
+      <Source
+        type="geojson"
+        data={!isPSL ? highlightedTracksFeature : emptyFeatureCollection}
+        key="speed-section-full-route"
+      >
         <Layer
           type="line"
           id="speed-section/track-sections"
@@ -299,7 +319,11 @@ export const SpeedSectionEditionLayers = () => {
           filter={['has', 'extremity']}
         />
       </Source>
-      <Source type="geojson" data={isPSL ? speedSectionsFeature : emptyFeatureCollection} key="psl">
+      <Source
+        type="geojson"
+        data={isPSL ? highlightedTracksFeature : emptyFeatureCollection}
+        key="psl"
+      >
         {pslLayerProps.map((props, i) => (
           <Layer {...props} key={i} />
         ))}

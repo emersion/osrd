@@ -14,10 +14,7 @@ import {
   getTrackSectionEntityFromNearestPoint,
 } from 'applications/editor/tools/utils';
 import type { PartialOrReducer } from 'applications/editor/types';
-import type {
-  DirectionalTrackRange,
-  GetInfraByInfraIdRoutesTrackRangesApiResponse,
-} from 'common/api/osrdEditoastApi';
+import type { GetInfraByInfraIdRoutesTrackRangesApiResponse } from 'common/api/osrdEditoastApi';
 import { getNearestPoint } from 'utils/mapHelper';
 
 import type {
@@ -31,7 +28,6 @@ import type {
   PslSignInformation,
   RangeEditionState,
   RouteElements,
-  RouteTrackRanges,
   SpeedSectionEntity,
   SpeedSectionPslEntity,
   TrackRangeExtremityFeature,
@@ -362,20 +358,22 @@ export const isNew = (entity: SpeedSectionEntity | ElectrificationEntity) =>
 
 export const getTracksBetweenExtremeSwitches = (
   orderedRouteElements: OrderedRouteElementApplicable[],
-  selectedSwitches: Record<string, object>
+  selectedSwitches: Record<string, object>,
+  extraMeters: number
 ) => {
+  type OrderedTrackRanges = Extract<
+    OrderedRouteElementApplicable,
+    {
+      TrackRange: ApplicableTrackRange;
+    }
+  >[];
   const indices = Object.keys(selectedSwitches).map((s) =>
     orderedRouteElements.findIndex((el) => 'Switch' in el && el.Switch === s)
   );
   const zoneTrackRanges = (
     orderedRouteElements
       .slice(Math.min(...indices), Math.max(...indices))
-      .filter((el) => 'TrackRange' in el) as Extract<
-      OrderedRouteElementApplicable,
-      {
-        TrackRange: ApplicableTrackRange;
-      }
-    >[]
+      .filter((el) => 'TrackRange' in el) as OrderedTrackRanges
   ).map((el) => el.TrackRange);
   return zoneTrackRanges;
 };
@@ -414,3 +412,9 @@ export const makeRouteElements = (
     }
     return acc;
   }, {});
+
+export const compareTrackRange = (a: ApplicableTrackRange) => (b: ApplicableTrackRange) =>
+  a.track === b.track &&
+  a.begin === b.begin &&
+  a.end === b.end &&
+  a.applicable_directions === b.applicable_directions;

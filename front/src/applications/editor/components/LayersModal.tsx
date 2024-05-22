@@ -158,7 +158,7 @@ const LayersModal: FC<LayersModalProps> = ({
                     name={`editor-layer-${layerKey}`}
                     id={`editor-layer-${layerKey}`}
                     checked={checked}
-                    disabled={disabled}
+                    // disabled={disabled}
                   />
                   {isString(icon) ? (
                     <img className="layer-modal-img mx-2" src={icon} alt="" />
