@@ -86,7 +86,6 @@ export default function StdcmOperationalPoint({
   }, [point]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('onInputChange', e.target.value);
     setSearchTerm(e.target.value);
     if (e.target.value.trim().length === 0) {
       dispatch(updatePoint(null));
