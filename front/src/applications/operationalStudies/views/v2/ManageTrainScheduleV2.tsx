@@ -28,7 +28,6 @@ const ManageTrainScheduleV2 = () => {
   const origin = useSelector(getOriginV2);
   const destination = useSelector(getDestinationV2);
   const pathSteps = useSelector(getPathSteps);
-  console.log('pathSteps:', pathSteps);
 
   const [pathProperties, setPathProperties] = useState<ManageTrainSchedulePathProperties>();
 

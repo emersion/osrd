@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useEffect, type ChangeEvent } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import type { TFunction } from 'i18next';
 import { compact, findLastIndex } from 'lodash';
 import {
-  DataSheetGrid,
   keyColumn,
   type Column,
   checkboxColumn,
   createTextColumn,
+  DynamicDataSheetGrid,
 } from 'react-datasheet-grid';
 import { useTranslation } from 'react-i18next';
 
@@ -119,7 +119,7 @@ const TimesStops = ({ pathProperties, pathSteps = [], setPathProperties }: Times
   );
 
   return (
-    <DataSheetGrid
+    <DynamicDataSheetGrid
       columns={columns as Partial<Column<Partial<PathWaypointColumn>>>[]}
       value={timesStopsSteps}
       onChange={(e, [op]) => {
