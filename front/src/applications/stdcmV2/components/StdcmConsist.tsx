@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
 import { Input } from '@osrd-project/ui-core';
-import { useSelector } from 'react-redux';
 
-import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
 import { type LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
 import { type SelectOptionObject } from 'common/BootstrapSNCF/SelectSNCF';
-import { useOsrdConfActions, useOsrdConfSelectors } from 'common/osrdContext';
+import { useOsrdConfActions } from 'common/osrdContext';
 import SpeedLimitByTagSelector from 'common/SpeedLimitByTagSelector/SpeedLimitByTagSelector';
 import { useStoreDataForSpeedLimitByTagSelector } from 'common/SpeedLimitByTagSelector/useStoreDataForSpeedLimitByTagSelector';
 import RollingStock2Img from 'modules/rollingStock/components/RollingStock2Img';
-import useFilterRollingStock from 'modules/rollingStock/components/RollingStockCard/useFilterRollingStock';
+import { useStoreDataForRollingStockSelector } from 'modules/rollingStock/components/RollingStockSelector/useStoreDataForRollingStockSelector';
+import useFilterRollingStock from 'modules/rollingStock/hooks/useFilterRollingStock';
 import type { StdcmConfSliceActions } from 'reducers/osrdconf/stdcmConf';
-import type { StdcmConfSelectors } from 'reducers/osrdconf/stdcmConf/selectors';
 import { useAppDispatch } from 'store';
 
 import StdcmCard from './StdcmCard';
@@ -45,26 +43,11 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
   const { updateRollingStockID } = useOsrdConfActions() as StdcmConfSliceActions;
   const dispatch = useAppDispatch();
 
-  // TODO: Handle error
-  const { data: { results: rollingStocks } = { results: [] }, isSuccess } =
-    enhancedEditoastApi.endpoints.getLightRollingStock.useQuery({
-      pageSize: 1000,
-    });
+  const { rollingStock } = useStoreDataForRollingStockSelector();
 
-  const { getRollingStockID } = useOsrdConfSelectors() as StdcmConfSelectors;
-  const rollingStockID = useSelector(getRollingStockID);
-  const selectedRs = rollingStocks.find((rs) => rs.id === rollingStockID);
-
-  const [filteredRollingStockList, setFilteredRollingStockList] =
-    useState<LightRollingStockWithLiveries[]>(rollingStocks);
   const [isSelectChanged, setIsSelectChanged] = useState(false);
 
-  const { filters, searchMateriel } = useFilterRollingStock({
-    isSuccess,
-    rollingStocks,
-    filteredRollingStockList,
-    setFilteredRollingStockList,
-  });
+  const { filters, searchMateriel, filteredRollingStockList } = useFilterRollingStock();
 
   const getLabel = (rs: LightRollingStockWithLiveries) => {
     let res = '';
@@ -104,15 +87,15 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
   };
 
   useEffect(() => {
-    if (selectedRs) {
-      searchMateriel(getLabel(selectedRs));
+    if (rollingStock) {
+      searchMateriel(getLabel(rollingStock));
     }
-  }, [selectedRs]);
+  }, [rollingStock]);
 
   return (
     <StdcmCard
       name="Convoi"
-      title={<ConsistCardTitle rollingStock={selectedRs} />}
+      title={<ConsistCardTitle rollingStock={rollingStock} />}
       disabled={isPending}
     >
       <div className="stdcm-v2-consist">

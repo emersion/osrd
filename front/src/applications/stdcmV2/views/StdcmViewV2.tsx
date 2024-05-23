@@ -5,7 +5,7 @@ import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
 import { useSelector } from 'react-redux';
 
 import STDCM_REQUEST_STATUS from 'applications/stdcm/consts';
-import useStdcm from 'applications/stdcm/views/useStdcm';
+import useStdcm from 'applications/stdcm/hooks/useStdcm';
 import { useOsrdConfSelectors } from 'common/osrdContext';
 import ScenarioExplorer from 'modules/scenario/components/ScenarioExplorer';
 import { Map } from 'modules/trainschedule/components/ManageTrainSchedule';

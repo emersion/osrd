@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 
+import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
 import type { LightRollingStock, LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
-
+import { setFailure } from 'reducers/main';
+import { useAppDispatch } from 'store';
+import { castErrorToFailure } from 'utils/error';
 // text: a string to search in the rolling stock name, detail, reference, series, type, grouping
 // elec: true if the rolling stock has an electric mode
 // thermal: true if the rolling stock has a thermal mode
 // locked: true if the rolling stock is native in the database, can't be updated/deleted
 // notLocked: true if the rolling stock is created by the user, can be updated/deleted
-export interface Filters {
+export interface RollingStockFilters {
   text: string;
   elec: boolean;
   thermal: boolean;
@@ -17,7 +20,7 @@ export interface Filters {
 
 export function rollingStockPassesEnergeticModeFilters(
   modes: LightRollingStock['effort_curves']['modes'],
-  { elec, thermal }: Filters
+  { elec, thermal }: RollingStockFilters
 ) {
   if (elec || thermal) {
     const effortCurveModes = Object.values(modes).map(({ is_electric: isElec }) => isElec);
@@ -33,7 +36,7 @@ export function rollingStockPassesEnergeticModeFilters(
 function rollingStockPassesSearchedStringFilter(
   name: string,
   metadata: LightRollingStock['metadata'],
-  filters: Filters
+  filters: RollingStockFilters
 ) {
   if (!filters.text) {
     return true;
@@ -51,21 +54,24 @@ function rollingStockPassesSearchedStringFilter(
   ].some(includesSearchedString);
 }
 
-function rollingStockPassesLockedFilter(locked: boolean, filters: Filters) {
+function rollingStockPassesLockedFilter(locked: boolean, filters: RollingStockFilters) {
   if (filters.locked && !locked) {
     return false;
   }
   return true;
 }
 
-function rollingStockPassesNotlockedFilter(locked: boolean, filters: Filters) {
+function rollingStockPassesNotlockedFilter(locked: boolean, filters: RollingStockFilters) {
   if (filters.notLocked && locked) {
     return false;
   }
   return true;
 }
 
-function filterRollingStocks(rollingStockList: LightRollingStockWithLiveries[], filters: Filters) {
+function filterRollingStocks(
+  rollingStockList: LightRollingStockWithLiveries[],
+  filters: RollingStockFilters
+) {
   return rollingStockList?.filter(({ name, metadata, effort_curves: effortCurves, locked }) => {
     const passSearchedStringFilter = rollingStockPassesSearchedStringFilter(
       name,
@@ -88,25 +94,16 @@ function filterRollingStocks(rollingStockList: LightRollingStockWithLiveries[], 
 }
 
 type useSearchRollingStockProps = {
-  rollingStocks: LightRollingStockWithLiveries[];
-  filteredRollingStockList: LightRollingStockWithLiveries[];
-  setIsLoading?: (isLoading: boolean) => void;
-  isSuccess?: boolean;
   mustResetFilters?: boolean;
   setMustResetFilters?: (mustResetFilters: boolean) => void;
-  setFilteredRollingStockList: (rollingStocks: LightRollingStockWithLiveries[]) => void;
 };
 
-// TODO: Do we need to migrate the logic of fetch RS from API here too ?
 export default function useFilterRollingStock({
-  rollingStocks,
   mustResetFilters,
-  isSuccess,
-  setIsLoading,
-  setFilteredRollingStockList,
   setMustResetFilters,
-}: useSearchRollingStockProps) {
-  const [filters, setFilters] = useState<Filters>({
+}: useSearchRollingStockProps = {}) {
+  const dispatch = useAppDispatch();
+  const [filters, setFilters] = useState<RollingStockFilters>({
     text: '',
     elec: false,
     thermal: false,
@@ -114,17 +111,31 @@ export default function useFilterRollingStock({
     notLocked: false,
   });
 
+  const {
+    data: { results: allRollingStocks } = { results: [] },
+    isSuccess,
+    isError,
+    error,
+  } = enhancedEditoastApi.endpoints.getLightRollingStock.useQuery({
+    pageSize: 1000,
+  });
+
+  const [searchIsLoading, setSearchIsLoading] = useState(true);
+
+  const [filteredRollingStockList, setFilteredRollingStockList] =
+    useState<LightRollingStockWithLiveries[]>(allRollingStocks);
+
   const updateSearch = () => {
-    const newFilteredRollingStock = filterRollingStocks(rollingStocks, filters);
+    const newFilteredRollingStock = filterRollingStocks(allRollingStocks, filters);
     setTimeout(() => {
       setFilteredRollingStockList(newFilteredRollingStock);
-      if (setIsLoading) setIsLoading(false);
+      setSearchIsLoading(false);
     }, 0);
   };
 
   const searchMateriel = (value: string) => {
     setFilters({ ...filters, text: value.toLowerCase() });
-    if (setIsLoading) setIsLoading(true);
+    setSearchIsLoading(true);
   };
   // TODO: investigate if the main condition does not have bad side effects
   const toggleFilter = (filter: 'elec' | 'thermal' | 'locked' | 'notLocked') => {
@@ -138,7 +149,7 @@ export default function useFilterRollingStock({
         [filter]: !filters[filter],
       });
     }
-    if (setIsLoading) setIsLoading(true);
+    setSearchIsLoading(true);
   };
 
   const resetFilters = () => {
@@ -152,9 +163,15 @@ export default function useFilterRollingStock({
   };
 
   function handleRollingStockLoaded() {
-    const newFilteredRollingStock = filterRollingStocks(rollingStocks, filters);
+    const newFilteredRollingStock = filterRollingStocks(allRollingStocks, filters);
     setFilteredRollingStockList(newFilteredRollingStock);
   }
+
+  useEffect(() => {
+    if (isError && error) {
+      dispatch(setFailure(castErrorToFailure(error)));
+    }
+  }, [isError]);
 
   useEffect(() => {
     handleRollingStockLoaded();
@@ -170,7 +187,16 @@ export default function useFilterRollingStock({
   useEffect(() => {
     updateSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, rollingStocks]);
+  }, [filters, allRollingStocks]);
 
-  return { filters, setFilters, resetFilters, searchMateriel, toggleFilter };
+  return {
+    allRollingStocks,
+    filteredRollingStockList,
+    filters,
+    searchIsLoading,
+    setFilters,
+    resetFilters,
+    searchMateriel,
+    toggleFilter,
+  };
 }

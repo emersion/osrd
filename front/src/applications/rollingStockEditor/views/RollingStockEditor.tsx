@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { osrdEditoastApi } from 'common/api/osrdEditoastApi';
-import type { LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
 import { useModal } from 'common/BootstrapSNCF/ModalSNCF';
 import { Loader } from 'common/Loaders/Loader';
 import { RollingStockCard } from 'modules/rollingStock/components/RollingStockCard';
@@ -12,16 +11,11 @@ import RollingStockEditorButtons from 'modules/rollingStock/components/RollingSt
 import RollingStockEditorFormModal from 'modules/rollingStock/components/RollingStockEditor/RollingStockEditorFormModal';
 import RollingStockInformationPanel from 'modules/rollingStock/components/RollingStockEditor/RollingStockInformationPanel';
 import { SearchRollingStock } from 'modules/rollingStock/components/RollingStockSelector';
+import useFilterRollingStock from 'modules/rollingStock/hooks/useFilterRollingStock';
 
-type RollingStockEditorProps = {
-  rollingStocks: LightRollingStockWithLiveries[];
-};
-
-export default function RollingStockEditor({ rollingStocks }: RollingStockEditorProps) {
+export default function RollingStockEditor() {
   const { t } = useTranslation('rollingstock');
   const ref2scroll: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const [filteredRollingStockList, setFilteredRollingStockList] = useState(rollingStocks);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -39,7 +33,11 @@ export default function RollingStockEditor({ rollingStocks }: RollingStockEditor
       }
     );
 
-  useEffect(() => setFilteredRollingStockList(rollingStocks), []);
+  const { filteredRollingStockList, filters, searchMateriel, toggleFilter, searchIsLoading } =
+    useFilterRollingStock({
+      mustResetFilters: isDuplicating,
+      setMustResetFilters: setIsDuplicating,
+    });
 
   const rollingStocksList = (
     <div className="rollingstock-editor-list pr-1" data-testid="rollingstock-editor-list">
@@ -102,7 +100,7 @@ export default function RollingStockEditor({ rollingStocks }: RollingStockEditor
   );
 
   function displayList() {
-    if (isLoading) {
+    if (searchIsLoading) {
       return <Loader msg={t('waitingLoader')} />;
     }
     if (filteredRollingStockList.length === 0) {
@@ -171,12 +169,10 @@ export default function RollingStockEditor({ rollingStocks }: RollingStockEditor
           </div>
         )}
         <SearchRollingStock
-          rollingStocks={rollingStocks}
-          setFilteredRollingStockList={setFilteredRollingStockList}
           filteredRollingStockList={filteredRollingStockList}
-          setIsLoading={setIsLoading}
-          mustResetFilters={isDuplicating}
-          setMustResetFilters={setIsDuplicating}
+          filters={filters}
+          searchMateriel={searchMateriel}
+          toggleFilter={toggleFilter}
           hasWhiteBackground
         />
         {displayList()}

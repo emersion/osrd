@@ -10,40 +10,24 @@ import type { LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
 import CheckboxRadioSNCF from 'common/BootstrapSNCF/CheckboxRadioSNCF';
 import InputSNCF from 'common/BootstrapSNCF/InputSNCF';
 
-import useFilterRollingStock from '../RollingStockCard/useFilterRollingStock';
+import { type RollingStockFilters } from '../../hooks/useFilterRollingStock';
 
 type SearchRollingStockProps = {
-  rollingStocks: LightRollingStockWithLiveries[];
-  setFilteredRollingStockList: (rollingStocks: LightRollingStockWithLiveries[]) => void;
   filteredRollingStockList: LightRollingStockWithLiveries[];
-  setIsLoading?: (isLoading: boolean) => void;
-  isSuccess?: boolean;
-  mustResetFilters?: boolean;
-  setMustResetFilters?: (mustResetFilters: boolean) => void;
+  searchMateriel: (value: string) => void;
+  toggleFilter: (filter: 'elec' | 'thermal' | 'locked' | 'notLocked') => void;
+  filters: RollingStockFilters;
   hasWhiteBackground?: boolean;
 };
 
 const SearchRollingStock = ({
-  rollingStocks,
-  setFilteredRollingStockList,
   filteredRollingStockList,
-  setIsLoading,
-  isSuccess,
-  mustResetFilters,
-  setMustResetFilters,
+  filters,
+  searchMateriel,
+  toggleFilter,
   hasWhiteBackground,
 }: SearchRollingStockProps) => {
   const { t } = useTranslation('rollingstock');
-
-  const { filters, searchMateriel, toggleFilter } = useFilterRollingStock({
-    rollingStocks,
-    filteredRollingStockList,
-    setIsLoading,
-    isSuccess,
-    mustResetFilters,
-    setMustResetFilters,
-    setFilteredRollingStockList,
-  });
 
   return (
     <div className="row no-gutters">
