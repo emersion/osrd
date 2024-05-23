@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Input } from '@osrd-project/ui-core';
+// import { Input } from '@osrd-project/ui-core';
 
 import { type LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
 import { type SelectOptionObject } from 'common/BootstrapSNCF/SelectSNCF';
@@ -30,7 +30,7 @@ const ConsistCardTitle = ({
   if (!rollingStock) return null;
 
   return (
-    <div className="consist-img w-50 d-flex justify-content-end">
+    <div className="stdcm-v2-consist-img w-75 d-flex justify-content-end">
       <RollingStock2Img rollingStock={rollingStock} />
     </div>
   );
@@ -120,10 +120,10 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
             onSelectSuggestion={onSelectSuggestion}
           />
         </div>
-        <div className="stdcm-v2-consist__properties">
+        {/* <div className="stdcm-v2-consist__properties d-flex justify-content-between">
           <Input id="tonnage" label="Tonnage" trailingContent="t" disabled />
           <Input id="Longueur" label="longueur" trailingContent="m" disabled />
-        </div>
+        </div> */}
         <p className="stdcm-v2-consist__title">Limitation de vitesse</p>
         <SpeedLimitByTagSelector
           disabled={isPending}

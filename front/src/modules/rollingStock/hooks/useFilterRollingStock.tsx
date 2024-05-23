@@ -72,18 +72,18 @@ function filterRollingStocks(
   rollingStockList: LightRollingStockWithLiveries[],
   filters: RollingStockFilters
 ) {
-  return rollingStockList?.filter(({ name, metadata, effort_curves: effortCurves, locked }) => {
+  return rollingStockList.filter(({ name, metadata, effort_curves: effortCurves, locked }) => {
     const passSearchedStringFilter = rollingStockPassesSearchedStringFilter(
       name,
       metadata,
       filters
     );
     const passEnergeticModesFilter = rollingStockPassesEnergeticModeFilters(
-      effortCurves?.modes,
+      effortCurves.modes,
       filters
     );
-    const passLockedFilter = rollingStockPassesLockedFilter(locked as boolean, filters);
-    const passNotlockedFilter = rollingStockPassesNotlockedFilter(locked as boolean, filters);
+    const passLockedFilter = rollingStockPassesLockedFilter(locked, filters);
+    const passNotlockedFilter = rollingStockPassesNotlockedFilter(locked, filters);
     return (
       passSearchedStringFilter &&
       passEnergeticModesFilter &&

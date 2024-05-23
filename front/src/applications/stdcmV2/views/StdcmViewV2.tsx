@@ -46,21 +46,23 @@ const StdcmViewV2 = () => {
       <div className="stdcm-v2__body">
         <div className="stdcm-v2-simulation-settings">
           <div>
-            <ScenarioExplorer
-              globalProjectId={projectID}
-              globalStudyId={studyID}
-              globalScenarioId={scenarioID}
-            />
+            <div className="mb-4">
+              <ScenarioExplorer
+                globalProjectId={projectID}
+                globalStudyId={studyID}
+                globalScenarioId={scenarioID}
+              />
+            </div>
             <StdcmConsist isPending={isPending} />
           </div>
           <div className="stdcm-v2__separator" />
           <div className="stdcm-v2-simulation-itinirary">
             {/* //TODO: rename StdcmDefaultCard */}
-            <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} />
+            {/* <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} /> */}
             <StdcmOrigin isPending={isPending} />
-            <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} />
+            {/* <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} /> */}
             <StdcmDestination isPending={isPending} />
-            <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} />
+            {/* <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} /> */}
             <Button
               label="Obtenir la simulation"
               onClick={() => {

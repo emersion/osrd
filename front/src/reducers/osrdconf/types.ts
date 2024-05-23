@@ -59,12 +59,6 @@ export interface StandardAllowance {
   value?: number;
 }
 
-export type Sillon = {
-  origin: PointOnMap | null;
-  destination: PointOnMap | null;
-  vias: PointOnMap[];
-};
-
 export interface OsrdStdcmConfState extends OsrdConfState {
   maximumRunTime: number;
   standardStdcmAllowance?: StandardAllowance;
