@@ -359,7 +359,7 @@ export const isNew = (entity: SpeedSectionEntity | ElectrificationEntity) =>
 export const getTracksBetweenExtremeSwitches = (
   orderedRouteElements: OrderedRouteElementApplicable[],
   selectedSwitches: Record<string, object>,
-  extraMeters: number
+  extraMeters: boolean
 ) => {
   type OrderedTrackRanges = Extract<
     OrderedRouteElementApplicable,

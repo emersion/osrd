@@ -27,7 +27,6 @@ use editoast_schemas::infra::Endpoint;
 use editoast_schemas::infra::Link;
 use editoast_schemas::infra::NeutralSection;
 use editoast_schemas::infra::OperationalPointPart;
-use editoast_schemas::infra::OrderedRouteElement;
 use editoast_schemas::infra::PointSwitch;
 use editoast_schemas::infra::Route;
 use editoast_schemas::infra::RoutePath;
@@ -796,9 +795,7 @@ impl InfraCache {
 
         // Save track ranges and used switches
         let mut track_ranges = vec![];
-        let mut used_switches = HashMap::new();
-
-        let mut ordered_route_elements = vec![];
+        let mut used_switches = vec![];
 
         // Check path validity
         loop {
@@ -819,7 +816,6 @@ impl InfraCache {
                 cur_dir,
             );
             track_ranges.push(dir_track_range.clone());
-            ordered_route_elements.push(OrderedRouteElement::TrackRange(dir_track_range));
 
             // Search for the exit_point
             if cur_track_id == exit_track {
@@ -848,8 +844,7 @@ impl InfraCache {
                 // Check we found the switch in the route
                 route.switches_directions.get(&switch_id.clone().into())?
             };
-            used_switches.insert(switch_id.clone().into(), group.clone());
-            ordered_route_elements.push(OrderedRouteElement::Switch(switch_id.clone()));
+            used_switches.push((switch_id.clone().into(), group.clone()));
             let next_endpoint = graph.get_neighbour(&endpoint, group)?;
 
             // Update current track section, offset and direction
@@ -865,7 +860,6 @@ impl InfraCache {
         Some(RoutePath {
             track_ranges,
             switches_directions: used_switches,
-            ordered_route_elements: ordered_route_elements,
         })
     }
 }

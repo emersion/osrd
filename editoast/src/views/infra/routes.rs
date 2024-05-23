@@ -8,6 +8,7 @@ use actix_web::web::Json;
 use actix_web::web::Path;
 use actix_web::web::Query;
 use chashmap::CHashMap;
+use editoast_schemas::primitives::Identifier;
 use serde::Deserialize;
 use serde::Serialize;
 use strum::Display;
@@ -101,7 +102,8 @@ async fn get_routes_from_waypoint(
 enum RouteTrackRangesResult {
     Computed {
         track_ranges: Vec<DirectionalTrackRange>,
-        ordered_route_elements: Vec<OrderedRouteElement>,
+        #[schema(inline)]
+        switches_directions: Vec<(Identifier, Identifier)>,
     },
     NotFound,
     CantComputePath,
@@ -156,7 +158,7 @@ async fn get_routes_track_ranges<'a>(
                 if let Some(route_path) = route_path {
                     RouteTrackRangesResult::Computed {
                         track_ranges: route_path.track_ranges,
-                        ordered_route_elements: route_path.ordered_route_elements,
+                        switches_directions: route_path.switches_directions,
                     }
                 } else {
                     RouteTrackRangesResult::CantComputePath

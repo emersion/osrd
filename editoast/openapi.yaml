@@ -4230,20 +4230,6 @@ components:
       - track
       - position
       type: object
-    OrderedRouteElement:
-      oneOf:
-      - properties:
-          TrackRange:
-            $ref: '#/components/schemas/DirectionalTrackRange'
-        required:
-        - TrackRange
-        type: object
-      - properties:
-          Switch:
-            type: string
-        required:
-        - Switch
-        type: object
     Ordering:
       enum:
       - NameAsc
@@ -6498,18 +6484,21 @@ components:
       type: object
     RoutePath:
       properties:
-        route:
-          type: string
-        signaling_type:
-          type: string
-        track_sections:
+        switches_directions:
+          items:
+            items:
+              allOf:
+              - $ref: '#/components/schemas/Identifier'
+              - $ref: '#/components/schemas/Identifier'
+            type: array
+          type: array
+        track_ranges:
           items:
             $ref: '#/components/schemas/DirectionalTrackRange'
           type: array
       required:
-      - route
-      - signaling_type
-      - track_sections
+      - track_ranges
+      - switches_directions
       type: object
     RoutingRequirement:
       properties:
@@ -9961,9 +9950,13 @@ paths:
                 items:
                   oneOf:
                   - properties:
-                      ordered_route_elements:
+                      switches_directions:
                         items:
-                          $ref: '#/components/schemas/OrderedRouteElement'
+                          items:
+                            allOf:
+                            - $ref: '#/components/schemas/Identifier'
+                            - $ref: '#/components/schemas/Identifier'
+                          type: array
                         type: array
                       track_ranges:
                         items:
@@ -9975,7 +9968,7 @@ paths:
                         type: string
                     required:
                     - track_ranges
-                    - ordered_route_elements
+                    - switches_directions
                     - type
                     type: object
                   - properties:

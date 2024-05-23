@@ -157,7 +157,11 @@ fn check_path(
     // Search for switches out of the path
     let mut res = vec![];
     for switch in route.switches_directions.keys() {
-        if !route_path.switches_directions.contains_key(switch) {
+        if !route_path
+            .switches_directions
+            .iter()
+            .any(|(k, _)| k == switch)
+        {
             res.push(InfraError::new_object_out_of_path(
                 route,
                 format!("switches_directions.{switch}"),
