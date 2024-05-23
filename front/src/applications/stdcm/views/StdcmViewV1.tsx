@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux';
 // TODO TS2: rename ManageTrainSchedulePathProperties and move it to /modules/pathfinding
 import type { ManageTrainSchedulePathProperties } from 'applications/operationalStudies/types';
 import STDCM_REQUEST_STATUS from 'applications/stdcm/consts';
+import useStdcm from 'applications/stdcm/hooks/useStdcm';
 import StdcmConfig from 'applications/stdcm/views/StdcmConfig';
 import StdcmRequestModal from 'applications/stdcm/views/StdcmRequestModal';
-import useStdcm from 'applications/stdcm/views/useStdcm';
 import { enhancedEditoastApi } from 'common/api/enhancedEditoastApi';
 import type {
   PathfindingResultSuccess,

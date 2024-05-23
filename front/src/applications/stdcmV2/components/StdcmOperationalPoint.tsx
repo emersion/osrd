@@ -25,11 +25,7 @@ type StdcmOperationalPointProps = {
   isPending?: boolean;
 };
 
-export default function StdcmOperationalPoint({
-  updatePoint,
-  point,
-  isPending,
-}: StdcmOperationalPointProps) {
+const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperationalPointProps) => {
   const dispatch = useAppDispatch();
 
   const { searchTerm, chCodeFilter, chOptions, sortedResults, setSearchTerm, setChCodeFilter } =
@@ -161,4 +157,6 @@ export default function StdcmOperationalPoint({
       </div>
     </div>
   );
-}
+};
+
+export default StdcmOperationalPoint;

@@ -12,14 +12,14 @@ export interface StdcmSuggestionsProps<T extends string | SelectOptionObject> ex
   onSelectSuggestion: (option: T) => void;
 }
 
-export default function StdcmSuggestions<T extends string | SelectOptionObject>({
+const StdcmSuggestions = <T extends string | SelectOptionObject>({
   options,
   onSelectSuggestion,
   onFocus,
   onBlur,
   disabled,
   ...rest
-}: StdcmSuggestionsProps<T>) {
+}: StdcmSuggestionsProps<T>) => {
   const [isSelectVisible, setIsSelectVisible] = useState(!isEmpty(options));
 
   const [isFocused, setIsFocused] = useState(false);
@@ -63,4 +63,6 @@ export default function StdcmSuggestions<T extends string | SelectOptionObject>(
       )}
     </>
   );
-}
+};
+
+export default StdcmSuggestions;

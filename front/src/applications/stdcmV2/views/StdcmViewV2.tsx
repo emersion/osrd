@@ -20,7 +20,7 @@ import StdcmOrigin from '../components/StdcmOrigin';
 // TODO
 // - translate labels
 
-export default function StdcmViewV2() {
+const StdcmViewV2 = () => {
   const { getProjectID, getScenarioID, getStudyID } = useOsrdConfSelectors();
   const studyID = useSelector(getStudyID);
   const projectID = useSelector(getProjectID);
@@ -78,4 +78,6 @@ export default function StdcmViewV2() {
       </div>
     </div>
   );
-}
+};
+
+export default StdcmViewV2;

@@ -24,11 +24,11 @@ interface StdcmSuggestionsConsistOption
   value: LightRollingStockWithLiveries;
 }
 
-function ConsistCardTitle({
+const ConsistCardTitle = ({
   rollingStock,
 }: {
   rollingStock?: LightRollingStockWithLiveries | null;
-}) {
+}) => {
   if (!rollingStock) return null;
 
   return (
@@ -36,9 +36,9 @@ function ConsistCardTitle({
       <RollingStock2Img rollingStock={rollingStock} />
     </div>
   );
-}
+};
 
-export default function StdcmConsist({ isPending = false }: { isPending?: boolean }) {
+const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
   const { speedLimitByTag, speedLimitsByTags, dispatchUpdateSpeedLimitByTag } =
     useStoreDataForSpeedLimitByTagSelector();
 
@@ -151,4 +151,6 @@ export default function StdcmConsist({ isPending = false }: { isPending?: boolea
       </div>
     </StdcmCard>
   );
-}
+};
+
+export default StdcmConsist;

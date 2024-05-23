@@ -8,7 +8,7 @@ import type { StdcmConfSliceActions } from 'reducers/osrdconf/stdcmConf';
 import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
-export default function StdcmDestination({ isPending = false }: { isPending?: boolean }) {
+const StdcmDestination = ({ isPending = false }: { isPending?: boolean }) => {
   const { getDestinationV2 } = useOsrdConfSelectors();
   const { updateDestinationV2 } = useOsrdConfActions() as StdcmConfSliceActions;
   const destination = useSelector(getDestinationV2);
@@ -28,4 +28,6 @@ export default function StdcmDestination({ isPending = false }: { isPending?: bo
       </div>
     </StdcmCard>
   );
-}
+};
+
+export default StdcmDestination;

@@ -11,7 +11,7 @@ import { useAppDispatch } from 'store';
 import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
-export default function StdcmOrigin({ isPending = false }: { isPending?: boolean }) {
+const StdcmOrigin = ({ isPending = false }: { isPending?: boolean }) => {
   const { getOriginV2, getOriginDate, getOriginTime } = useOsrdConfSelectors();
   const { updateOriginV2, updateOriginDate, updateOriginTime } =
     useOsrdConfActions() as StdcmConfSliceActions;
@@ -52,4 +52,6 @@ export default function StdcmOrigin({ isPending = false }: { isPending?: boolean
       </div>
     </StdcmCard>
   );
-}
+};
+
+export default StdcmOrigin;

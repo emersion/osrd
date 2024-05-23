@@ -8,7 +8,7 @@ type StdcmLoaderProps = {
   cancelStdcmRequest: () => void;
 };
 
-export default forwardRef(
+const StdcmLoader = forwardRef(
   ({ cancelStdcmRequest }: StdcmLoaderProps, ref: React.Ref<HTMLDivElement>) => (
     <div
       ref={ref}
@@ -33,3 +33,5 @@ export default forwardRef(
     </div>
   )
 );
+
+export default StdcmLoader;
