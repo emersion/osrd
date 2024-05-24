@@ -15,7 +15,7 @@ public class TrainStop {
     }
 
     public TrainStop(double position, double duration) {
-        this(position, duration, duration > 0);
+        this(position, duration, duration > 1E-4);
     }
 
     @Override

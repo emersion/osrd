@@ -71,7 +71,8 @@ fun runScheduleMetadataExtractor(
     for (block in blockPath) blockPathLength += blockInfra.getBlockLength(block).distance
     val endOffset = blockPathLength - startOffset - (envelope.endPos - envelope.beginPos).meters
 
-    val pathSignals = pathSignalsInEnvelope(pathOffsetBuilder, blockPath, blockInfra, envelopeWithStops)
+    val pathSignals =
+        pathSignalsInEnvelope(pathOffsetBuilder, blockPath, blockInfra, envelopeWithStops)
     val zoneOccupationChangeEvents =
         zoneOccupationChangeEvents(
             pathOffsetBuilder,
@@ -84,7 +85,12 @@ fun runScheduleMetadataExtractor(
 
     val zoneUpdates =
         zoneOccupationChangeEvents.map {
-            ZoneUpdate(rawInfra.getZoneName(it.zone), it.time, pathOffsetBuilder.fromTravelledPath(it.offset), it.isEntry)
+            ZoneUpdate(
+                rawInfra.getZoneName(it.zone),
+                it.time,
+                pathOffsetBuilder.fromTravelledPath(it.offset),
+                it.isEntry
+            )
         }
 
     val signalSightings = mutableListOf<SignalSighting>()

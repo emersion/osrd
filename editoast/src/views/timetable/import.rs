@@ -522,8 +522,8 @@ fn build_simulation_request(
                     position: Some(*path_offset),
                     location: None,
                     duration,
-                    // float comparison needs an epsilon. In our case, a tenth of a second is ok.
-                    on_stop_signal: duration > 0.1,
+                    // float comparison needs an epsilon.
+                    on_stop_signal: duration > 1E-4,
                 }
             })
             .collect();

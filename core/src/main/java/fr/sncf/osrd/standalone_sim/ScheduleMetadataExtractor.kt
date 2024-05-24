@@ -186,7 +186,10 @@ fun run(
         )
     val pathStops =
         schedule.stops.map {
-            PathStop(pathOffsetBuilder.fromTravelledPath(Offset(it.position.meters)), it.onStopSignal)
+            PathStop(
+                pathOffsetBuilder.fromTravelledPath(Offset(it.position.meters)),
+                it.onStopSignal
+            )
         }
     incrementalPath.extend(
         PathFragment(

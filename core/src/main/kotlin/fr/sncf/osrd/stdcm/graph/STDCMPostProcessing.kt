@@ -174,7 +174,7 @@ private fun makeOpStops(infra: RawSignalingInfra, trainPath: PathProperties): Li
     val operationalPoints = makeOperationalPoints(infra, trainPath)
     val res = ArrayList<TrainStop>()
     for (op in operationalPoints) {
-        res.add(TrainStop(op.pathOffset, 0.0))
+        res.add(TrainStop(op.pathOffset, 0.0, false))
     }
     return res
 }

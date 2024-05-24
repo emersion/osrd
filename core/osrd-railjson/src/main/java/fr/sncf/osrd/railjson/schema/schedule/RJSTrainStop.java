@@ -26,13 +26,14 @@ public class RJSTrainStop {
     public double duration;
 
     /** Constructor with position */
-    public RJSTrainStop(Double position, double duration) {
+    public RJSTrainStop(Double position, double duration, boolean onStopSignal) {
         this.position = position;
         this.location = null;
         this.duration = duration;
+        this.onStopSignal = onStopSignal;
     }
 
     public static RJSTrainStop lastStop(double duration) {
-        return new RJSTrainStop(-1., duration);
+        return new RJSTrainStop(-1., duration, true);
     }
 }
