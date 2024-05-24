@@ -18,6 +18,7 @@ import { useInfraID, useOsrdConfSelectors } from 'common/osrdContext';
 import { formatSuggestedOperationalPoints, insertViasInOPs } from 'modules/pathfinding/utils';
 import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSchedule/types';
 import { updateSelectedTrainId, updateSelectedProjection } from 'reducers/osrdsimulation/actions';
+import { getTrainScheduleV2Activated } from 'reducers/user/userSelectors';
 import { useAppDispatch } from 'store';
 
 const StdcmViewV1 = () => {
@@ -25,6 +26,7 @@ const StdcmViewV1 = () => {
   const { getPathSteps } = useOsrdConfSelectors();
   const infraId = useInfraID();
   const pathSteps = useSelector(getPathSteps);
+  const trainScheduleV2Activated = useSelector(getTrainScheduleV2Activated);
 
   const [pathProperties, setPathProperties] = useState<ManageTrainSchedulePathProperties>();
 
@@ -93,6 +95,16 @@ const StdcmViewV1 = () => {
     []
   );
 
+  useEffect(() => {
+    if (currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending) {
+      if (trainScheduleV2Activated) {
+        launchStdcmRequestV2();
+      } else {
+        launchStdcmRequest();
+      }
+    }
+  }, [currentStdcmRequestStatus]);
+
   return (
     <>
       <StdcmConfig
@@ -106,8 +118,6 @@ const StdcmViewV1 = () => {
       {currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending && (
         <StdcmRequestModal
           currentStdcmRequestStatus={currentStdcmRequestStatus}
-          launchStdcmRequest={launchStdcmRequest}
-          launchStdcmRequestV2={launchStdcmRequestV2}
           cancelStdcmRequest={cancelStdcmRequest}
         />
       )}

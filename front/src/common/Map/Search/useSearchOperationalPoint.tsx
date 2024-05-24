@@ -1,31 +1,27 @@
 import { useState, useEffect, useMemo } from 'react';
 
-import { compact } from 'lodash';
+import { compact, groupBy, isEmpty } from 'lodash';
 
 import { type SearchResultItemOperationalPoint, osrdEditoastApi } from 'common/api/osrdEditoastApi';
 import { useInfraID } from 'common/osrdContext';
+import { removeDuplicates } from 'utils/array';
 import { useDebounce } from 'utils/helpers';
 
-export const mainOperationalPointsCHCodes = ['', '00', 'BV'];
+export const MAIN_OP_CH_CODES = ['', '00', 'BV'];
 
 type SearchOperationalPoint = {
   debounceDelay?: number;
-  mainOperationalPointsOnly?: boolean;
-  searchTerm?: string;
-  chCodeFilter?: string;
+  initialSearchTerm?: string;
+  initialChCodeFilter?: string;
 };
 
 export default function useSearchOperationalPoint(props?: SearchOperationalPoint) {
-  const {
-    debounceDelay = 150,
-    mainOperationalPointsOnly = false,
-    searchTerm: initialSearchTerm = '',
-    chCodeFilter: initialChCodeFilter = '',
-  } = props || {};
+  const { debounceDelay = 150, initialSearchTerm = '', initialChCodeFilter } = props || {};
   const infraID = useInfraID();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [chCodeFilter, setChCodeFilter] = useState(initialChCodeFilter);
   const [searchResults, setSearchResults] = useState<SearchResultItemOperationalPoint[]>([]);
+  const [mainOperationalPointsOnly, setMainOperationalPointsOnly] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, debounceDelay);
   const [postSearch] = osrdEditoastApi.endpoints.postSearch.useMutation();
@@ -34,7 +30,7 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     const isSearchingByTrigram = !Number.isInteger(+debouncedSearchTerm) && searchTerm.length < 4;
     const searchQuery = isSearchingByTrigram
       ? // We have to test for op names that goes under 4 letters too
-        ['or', ['=i', ['trigram'], debouncedSearchTerm], ['=i', ['name'], debouncedSearchTerm]]
+        ['or', ['=i', ['trigram'], debouncedSearchTerm], ['search', ['name'], debouncedSearchTerm]]
       : [
           'or',
           ['search', ['name'], debouncedSearchTerm],
@@ -56,42 +52,48 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     }
   };
 
-  const sortedResults = useMemo(() => {
-    const filterResults = (result: SearchResultItemOperationalPoint) => {
-      const shouldInclude =
-        chCodeFilter !== ''
-          ? result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase())
-          : true;
-      return shouldInclude;
-    };
+  const sortedResults = useMemo(
+    () =>
+      searchResults
+        .filter((result) => {
+          if (
+            mainOperationalPointsOnly ||
+            (chCodeFilter && MAIN_OP_CH_CODES.includes(chCodeFilter))
+          )
+            return MAIN_OP_CH_CODES.includes(result.ch);
 
-    const sortResults = (results: SearchResultItemOperationalPoint[]) =>
-      results.sort((a, b) => a.name.localeCompare(b.name) || a.ch?.localeCompare(b.ch));
+          if (chCodeFilter === undefined) return true;
 
-    const mainOperationalPoints: SearchResultItemOperationalPoint[] = [];
-    const otherPoints: SearchResultItemOperationalPoint[] = [];
-
-    searchResults.forEach((result) => {
-      if (filterResults(result)) {
-        if (mainOperationalPointsCHCodes.includes(result.ch)) {
-          mainOperationalPoints.push(result);
-        } else {
-          otherPoints.push(result);
-        }
-      }
-    });
-
-    const sortedMainOperationalPoints = sortResults(mainOperationalPoints);
-    const sortedOtherPoints = sortResults(otherPoints);
-
-    if (mainOperationalPointsOnly) return sortedMainOperationalPoints;
-
-    return [...sortedMainOperationalPoints, ...sortedOtherPoints];
-  }, [searchResults, chCodeFilter, mainOperationalPointsOnly]);
+          return result.ch.toLocaleLowerCase().includes(chCodeFilter.trim().toLowerCase());
+        })
+        .sort((a, b) => {
+          const nameComparison = a.name.localeCompare(b.name);
+          if (nameComparison !== 0) {
+            return nameComparison;
+          }
+          if (MAIN_OP_CH_CODES.includes(a.ch)) {
+            return -1;
+          }
+          if (MAIN_OP_CH_CODES.includes(b.ch)) {
+            return 1;
+          }
+          return a.ch.localeCompare(b.ch);
+        }),
+    [searchResults, chCodeFilter, mainOperationalPointsOnly]
+  );
 
   const chOptions = useMemo(
-    () => [...compact(sortedResults.sort().map((result) => result.ch))],
-    [searchResults]
+    () =>
+      removeDuplicates([
+        ...compact(
+          sortedResults.map(
+            (result) =>
+              // (MAIN_OP_CH_CODES.includes(result.ch) ? 'BV' : result.ch)
+              result.ch || '-'
+          )
+        ),
+      ]).sort(),
+    [sortedResults]
   );
 
   useEffect(() => {
@@ -102,14 +104,20 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
     }
   }, [debouncedSearchTerm]);
 
+  useEffect(() => {
+    if (isEmpty(searchResults)) setChCodeFilter(undefined);
+  }, [searchResults]);
+
   return {
     searchTerm,
     chCodeFilter,
     chOptions,
     searchResults,
     sortedResults,
+    mainOperationalPointsOnly,
     setSearchTerm,
     setChCodeFilter,
     setSearchResults,
+    setMainOperationalPointsOnly,
   };
 }

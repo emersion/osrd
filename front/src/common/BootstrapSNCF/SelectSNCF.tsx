@@ -53,8 +53,8 @@ function SelectSNCF<T extends string | SelectOptionObject>({
         value={isString(value) ? value : value?.id}
         disabled={disabled}
       >
-        {options.map((option, index) => (
-          <option key={`${index}-${getOptionValue(option)}`} value={getOptionValue(option)}>
+        {options.map((option) => (
+          <option key={getOptionValue(option)} value={getOptionValue(option)}>
             {getOptionLabel(option)}
           </option>
         ))}

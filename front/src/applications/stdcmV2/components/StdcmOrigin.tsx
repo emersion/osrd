@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 import InputSNCF from 'common/BootstrapSNCF/InputSNCF';
@@ -12,6 +13,7 @@ import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
 const StdcmOrigin = ({ isPending = false }: { isPending?: boolean }) => {
+  const { t } = useTranslation('stdcm');
   const { getOriginV2, getOriginDate, getOriginTime } = useOsrdConfSelectors();
   const { updateOriginV2, updateOriginDate, updateOriginTime } =
     useOsrdConfActions() as StdcmConfSliceActions;
@@ -20,14 +22,14 @@ const StdcmOrigin = ({ isPending = false }: { isPending?: boolean }) => {
   const originTime = useSelector(getOriginTime);
   const dispatch = useAppDispatch();
   return (
-    <StdcmCard name="Origine" disabled={isPending} hasTip>
+    <StdcmCard name={t('trainPath.origin')} disabled={isPending} hasTip>
       <div className="stdcm-v2-origin">
         <StdcmOperationalPoint updatePoint={updateOriginV2} point={origin} isPending={isPending} />
         <div className="stdcm-v2-origin__parameters d-flex">
           <div className="col-6">
             <InputSNCF
               id="dateOrigin"
-              label="Date"
+              label={t('trainPath.date')}
               type="date"
               name="dateOrigin"
               onChange={(e) => dispatch(updateOriginDate(e.target.value))}
@@ -38,7 +40,7 @@ const StdcmOrigin = ({ isPending = false }: { isPending?: boolean }) => {
           <div className="col-6">
             <InputSNCF
               type="time"
-              label="Heure"
+              label={t('trainPath.time')}
               id="originTime"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 dispatch(updateOriginTime(e.target.value))

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
 // import { Input } from '@osrd-project/ui-core';
 
 import { type LightRollingStockWithLiveries } from 'common/api/osrdEditoastApi';
@@ -12,6 +13,7 @@ import { useStoreDataForRollingStockSelector } from 'modules/rollingStock/compon
 import useFilterRollingStock from 'modules/rollingStock/hooks/useFilterRollingStock';
 import type { StdcmConfSliceActions } from 'reducers/osrdconf/stdcmConf';
 import { useAppDispatch } from 'store';
+
 
 import StdcmCard from './StdcmCard';
 import StdcmSuggestions from './StdcmSuggestions';
@@ -37,6 +39,7 @@ const ConsistCardTitle = ({
 };
 
 const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
+  const { t } = useTranslation('stdcm');
   const { speedLimitByTag, speedLimitsByTags, dispatchUpdateSpeedLimitByTag } =
     useStoreDataForSpeedLimitByTagSelector();
 
@@ -53,14 +56,15 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
     let res = '';
     const { metadata, name } = rs;
 
-    const series = metadata?.series ?? (metadata?.reference || '');
-    const subseries =
-      metadata?.series && metadata.series !== metadata.subseries
-        ? metadata.subseries
-        : metadata?.detail || '';
-
-    if (series) res += series;
-    if (subseries) res += series ? ` (${subseries})` : subseries;
+    if (metadata) {
+      const series = metadata.series ?? metadata.reference;
+      const subseries =
+        metadata.series && metadata.series !== metadata.subseries
+          ? metadata.subseries
+          : metadata.detail;
+      if (series) res += series;
+      if (subseries) res += series ? ` (${subseries})` : subseries;
+    }
     if (name) res += ` -- ${name}`;
     return res;
   };
@@ -89,12 +93,14 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
   useEffect(() => {
     if (rollingStock) {
       searchMateriel(getLabel(rollingStock));
+    } else {
+      searchMateriel('');
     }
   }, [rollingStock]);
 
   return (
     <StdcmCard
-      name="Convoi"
+      name={t('consist.consist')}
       title={<ConsistCardTitle rollingStock={rollingStock} />}
       disabled={isPending}
     >
@@ -102,7 +108,7 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
         <div>
           <StdcmSuggestions
             id="tractionEngine"
-            label="Engin de traction"
+            label={t('consist.tractionEngine')}
             value={filters.text.toUpperCase()}
             onChange={onInputChange}
             autoComplete="off"
@@ -124,7 +130,7 @@ const StdcmConsist = ({ isPending = false }: { isPending?: boolean }) => {
           <Input id="tonnage" label="Tonnage" trailingContent="t" disabled />
           <Input id="Longueur" label="longueur" trailingContent="m" disabled />
         </div> */}
-        <p className="stdcm-v2-consist__title">Limitation de vitesse</p>
+        <p className="stdcm-v2-consist__title">{t('translation:Editor.nav.speed-limits')}</p>
         <SpeedLimitByTagSelector
           disabled={isPending}
           selectedSpeedLimitByTag={speedLimitByTag}

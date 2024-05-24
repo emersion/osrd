@@ -12,9 +12,7 @@ import type { Viewport } from 'reducers/map';
 import { getMap } from 'reducers/map/selectors';
 import { useAppDispatch } from 'store';
 
-import useSearchOperationalPoint, {
-  mainOperationalPointsCHCodes,
-} from './useSearchOperationalPoint';
+import useSearchOperationalPoint, { MAIN_OP_CH_CODES } from './useSearchOperationalPoint';
 
 type MapSearchOperationalPointProps = {
   updateExtViewport: (viewport: Partial<Viewport>) => void;
@@ -27,17 +25,17 @@ const MapSearchOperationalPoint = ({
 }: MapSearchOperationalPointProps) => {
   const map = useSelector(getMap);
 
-  const [mainOperationalPointsOnly, setMainOperationalPointsOnly] = useState(false);
-
   const {
     searchTerm,
     chCodeFilter,
     searchResults,
     sortedResults,
+    mainOperationalPointsOnly,
     setSearchTerm,
     setChCodeFilter,
     setSearchResults,
-  } = useSearchOperationalPoint({ mainOperationalPointsOnly });
+    setMainOperationalPointsOnly,
+  } = useSearchOperationalPoint();
   const dispatch = useAppDispatch();
 
   const { t } = useTranslation(['map-search']);
@@ -114,9 +112,9 @@ const MapSearchOperationalPoint = ({
             type="text"
             placeholder={t('placeholderchcode')}
             onChange={(e) => {
-              setChCodeFilter(e.target.value);
+              setChCodeFilter(e.target.value || undefined);
             }}
-            onClear={() => setChCodeFilter('')}
+            onClear={() => setChCodeFilter(undefined)}
             value={chCodeFilter}
             disabled={mainOperationalPointsOnly}
             clearButton
@@ -149,7 +147,7 @@ const MapSearchOperationalPoint = ({
               id={`result-${index}`}
               type="button"
               className={cx('search-result-item', {
-                main: searchResult.ch === '',
+                main: MAIN_OP_CH_CODES.includes(searchResult.ch),
                 selected: index === selectedResultIndex,
               })}
               key={`mapSearchOperationalPoint-${searchResult.obj_id}`}
@@ -160,9 +158,7 @@ const MapSearchOperationalPoint = ({
               <span className="name">
                 {searchResult.name}
                 <span className="ch">
-                  {mainOperationalPointsCHCodes.includes(searchResult.ch)
-                    ? ''
-                    : searchResult.ch ?? ''}
+                  {MAIN_OP_CH_CODES.includes(searchResult.ch) ? '' : searchResult.ch ?? ''}
                 </span>
               </span>
               <span className="uic">{searchResult.ci}</span>

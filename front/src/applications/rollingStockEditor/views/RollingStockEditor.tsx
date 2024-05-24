@@ -13,7 +13,7 @@ import RollingStockInformationPanel from 'modules/rollingStock/components/Rollin
 import { SearchRollingStock } from 'modules/rollingStock/components/RollingStockSelector';
 import useFilterRollingStock from 'modules/rollingStock/hooks/useFilterRollingStock';
 
-export default function RollingStockEditor() {
+const RollingStockEditor = () => {
   const { t } = useTranslation('rollingstock');
   const ref2scroll: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -183,3 +183,5 @@ export default function RollingStockEditor() {
     </div>
   );
 }
+
+export default RollingStockEditor;

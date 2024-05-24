@@ -9,5 +9,21 @@
   "stdcmErrorNoPaths": "Incompatibilité avec d'autres sillons.",
   "stdcmNoResults": "Aucun sillon trouvé",
   "stdcmResults": "Résultats",
-  "stdcmSimulationReport": "Fiche simulation"
+  "stdcmSimulationReport": "Fiche simulation",
+  "consist": {
+    "consist": "Convoi",
+    "tractionEngine": "Engin de traction"
+  },
+  "trainPath": {
+    "asSoonAsPossible": "Dès que possible",
+    "ch": "CH",
+    "ci": "CI",
+    "date": "Date",
+    "destination": "Destination",
+    "origin": "Origine",
+    "time": "Heure"
+  },
+  "simulation":{
+    "getSimulation": "Obtenir la simulation"
+  }
 }

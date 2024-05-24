@@ -9,5 +9,18 @@
   "stdcmErrorNoPaths": "Incompatibility with other train paths.",
   "stdcmNoResults": "No path found",
   "stdcmResults": "Results",
-  "stdcmSimulationReport": "Path simulation report"
+  "stdcmSimulationReport": "Path simulation report",
+  "consist": {
+    "consist": "Consist",
+    "tractionEngine": "Traction engine"
+  },
+  "trainPath": {
+    "asSoonAsPossible": "As soon as possible",
+    "ch": "CH",
+    "ci": "CI",
+    "date": "Date",
+    "destination": "Destination",
+    "origin": "Origin",
+    "time": "Time"
+  }
 }

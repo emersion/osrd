@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 import { useOsrdConfSelectors, useOsrdConfActions } from 'common/osrdContext';
@@ -9,11 +10,12 @@ import StdcmCard from './StdcmCard';
 import StdcmOperationalPoint from './StdcmOperationalPoint';
 
 const StdcmDestination = ({ isPending = false }: { isPending?: boolean }) => {
+  const { t } = useTranslation('stdcm');
   const { getDestinationV2 } = useOsrdConfSelectors();
   const { updateDestinationV2 } = useOsrdConfActions() as StdcmConfSliceActions;
   const destination = useSelector(getDestinationV2);
   return (
-    <StdcmCard name="Destination" disabled={isPending}>
+    <StdcmCard name={t('trainPath.destination')} disabled={isPending}>
       <div className="stdcm-v2-destination">
         <StdcmOperationalPoint
           updatePoint={updateDestinationV2}
@@ -22,7 +24,7 @@ const StdcmDestination = ({ isPending = false }: { isPending?: boolean }) => {
         />
         <div>
           <select id="destination" name="destination" disabled>
-            <option value="asSoonAsPossible">dès que possible</option>
+            <option value="asSoonAsPossible">{t('trainPath.asSoonAsPossible')}</option>
           </select>
         </div>
       </div>

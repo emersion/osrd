@@ -1,41 +1,24 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { useTranslation } from 'react-i18next';
 import ReactModal from 'react-modal';
-import { useSelector } from 'react-redux';
 
 import STDCM_REQUEST_STATUS from 'applications/stdcm/consts';
 import type { StdcmRequestStatus } from 'applications/stdcm/types';
 import ModalBodySNCF from 'common/BootstrapSNCF/ModalSNCF/ModalBodySNCF';
 import ModalHeaderSNCF from 'common/BootstrapSNCF/ModalSNCF/ModalHeaderSNCF';
 import { Spinner } from 'common/Loaders';
-import { getTrainScheduleV2Activated } from 'reducers/user/userSelectors';
 
 export type StdcmRequestModalProps = {
   currentStdcmRequestStatus: StdcmRequestStatus;
-  launchStdcmRequest: () => void;
-  launchStdcmRequestV2: () => void;
   cancelStdcmRequest: () => void;
 };
 
 const StdcmRequestModal = ({
   currentStdcmRequestStatus,
-  launchStdcmRequest,
-  launchStdcmRequestV2,
   cancelStdcmRequest,
 }: StdcmRequestModalProps) => {
   const { t } = useTranslation(['translation', 'stdcm']);
-  const trainScheduleV2Activated = useSelector(getTrainScheduleV2Activated);
-
-  useEffect(() => {
-    if (currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending) {
-      if (trainScheduleV2Activated) {
-        launchStdcmRequestV2();
-      } else {
-        launchStdcmRequest();
-      }
-    }
-  }, [currentStdcmRequestStatus]);
 
   return (
     <ReactModal

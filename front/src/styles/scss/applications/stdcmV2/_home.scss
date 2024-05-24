@@ -7,9 +7,9 @@
         gap: 32px;
     
         .stdcm-v2-simulation-settings {
-            display: flex;
-            flex-direction: row;
-            gap: 13px;
+            display: grid;
+            grid-template-columns: 1fr auto 1.5fr;
+            grid-column-gap: 13px;
             .stdcm-v2__separator {
                 border-radius: 4px;
                 background-color: rgba(0, 0, 0, 0.05);

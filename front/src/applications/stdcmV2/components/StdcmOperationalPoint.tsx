@@ -2,12 +2,16 @@ import React, { useEffect, useState } from 'react';
 
 import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { isNil } from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import type { SearchResultItemOperationalPoint } from 'common/api/osrdEditoastApi';
 import SelectSNCF, { type SelectOptionObject } from 'common/BootstrapSNCF/SelectSNCF';
-import useSearchOperationalPoint from 'common/Map/Search/useSearchOperationalPoint';
+import useSearchOperationalPoint, {
+  MAIN_OP_CH_CODES,
+} from 'common/Map/Search/useSearchOperationalPoint';
 import type { PathStep } from 'reducers/osrdconf/types';
 import { useAppDispatch } from 'store';
+import { removeDuplicates } from 'utils/array';
 
 import StdcmSuggestions from './StdcmSuggestions';
 
@@ -27,9 +31,18 @@ type StdcmOperationalPointProps = {
 
 const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperationalPointProps) => {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation('stdcm');
 
-  const { searchTerm, chCodeFilter, chOptions, sortedResults, setSearchTerm, setChCodeFilter } =
-    useSearchOperationalPoint({ searchTerm: point?.name, chCodeFilter: point?.ch });
+  const {
+    searchTerm,
+    chCodeFilter,
+    chOptions,
+    searchResults,
+    sortedResults,
+    setSearchTerm,
+    setChCodeFilter,
+    setMainOperationalPointsOnly,
+  } = useSearchOperationalPoint({ initialSearchTerm: point?.name, initialChCodeFilter: point?.ch });
 
   const [selectOptions, setSelectOptions] = useState<string[]>(chOptions);
 
@@ -46,38 +59,17 @@ const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperation
   }) => [trigram, name, ci, ch].join(' ');
 
   useEffect(() => {
-    let newSelectOptions = [''];
-    if (point?.ch) {
-      newSelectOptions = [...newSelectOptions, point.ch];
-    } else {
-      newSelectOptions = [...newSelectOptions, ...chOptions];
-    }
-    setSelectOptions(newSelectOptions);
+    // let newSelectOptions = ['All'];
+    // newSelectOptions = [...newSelectOptions, ...chOptions];
+    setSelectOptions(chOptions);
   }, [chOptions, point]);
 
   useEffect(() => {
     if (point) {
-      let trigram = '';
-      let ci = '';
-      if ('trigram' in point) {
-        trigram = point.trigram ?? '';
-      }
-      if ('secondary_code' in point) {
-        ci = point.secondary_code || '';
-      }
-
-      setSearchTerm(
-        getLabel({
-          trigram,
-          name: point.name || '',
-          ch: point.ch || '',
-          ci,
-        })
-      );
+      setSearchTerm(point.name || '');
       setChCodeFilter(point.ch || '');
     } else {
-      setSearchTerm('');
-      setChCodeFilter('');
+      setChCodeFilter(undefined);
     }
   }, [point]);
 
@@ -109,13 +101,27 @@ const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperation
     dispatchNewPoint(value);
   };
 
-  const onSelectChCodeFilter = (newchCodeFilter: string = '') => {
-    if (newchCodeFilter.trim().length === 0) {
-      dispatch(updatePoint(null));
-    } else {
-      dispatchNewPoint(sortedResults.find((p) => p.ch === newchCodeFilter));
-    }
+  const onSelectChCodeFilter = (newChCodeFilter?: string = 'All') => {
+    console.log('newCodefilter -- ', newChCodeFilter);
+    // switch (newchCodeFilter) {
+    //   case 'All':
+    //     setMainOperationalPointsOnly(false);
+    //     setChCodeFilter(undefined);
+    //     break;
+    //   case 'BV':
+    //     setMainOperationalPointsOnly(true);
+    //     setChCodeFilter('BV');
+    //     break;
+    //   default:
+    //     setMainOperationalPointsOnly(false);
+    //     setChCodeFilter(newchCodeFilter);
+    //     break;
+    setMainOperationalPointsOnly(MAIN_OP_CH_CODES.includes(newChCodeFilter));
+    setChCodeFilter(newChCodeFilter);
+    // }
   };
+  console.log('sortedResult -- ', sortedResults, searchResults);
+  console.log({ chOptions, selectOptions });
 
   const operationalPointsSguggestions = sortedResults.map(
     (p: SearchResultItemOperationalPoint) => ({
@@ -135,7 +141,7 @@ const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperation
       <div className="col-8">
         <StdcmSuggestions
           id="ci"
-          label="CI"
+          label={t('trainPath.ci')}
           value={searchTerm}
           onChange={onInputChange}
           autoComplete="off"
@@ -147,7 +153,7 @@ const StdcmOperationalPoint = ({ updatePoint, point, isPending }: StdcmOperation
 
       <div className="w-100 py-2 col-4">
         <SelectSNCF
-          label="CH"
+          label={t('trainPath.ch')}
           id="ch"
           value={chCodeFilter}
           options={selectOptions}

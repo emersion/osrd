@@ -6,6 +6,7 @@ import { isEmpty } from 'lodash';
 import SelectImprovedSNCF, {
   type SelectOptionObject,
 } from 'common/BootstrapSNCF/SelectImprovedSNCF';
+import { removeDuplicates } from 'utils/array';
 
 export interface StdcmSuggestionsProps<T extends string | SelectOptionObject> extends InputProps {
   options: T[];
@@ -20,7 +21,7 @@ const StdcmSuggestions = <T extends string | SelectOptionObject>({
   disabled,
   ...rest
 }: StdcmSuggestionsProps<T>) => {
-  const [isSelectVisible, setIsSelectVisible] = useState(!isEmpty(options));
+  const [isSelectVisible, setIsSelectVisible] = useState(false);
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -47,7 +48,7 @@ const StdcmSuggestions = <T extends string | SelectOptionObject>({
       {isSelectVisible && (
         <div className="selector-select">
           <SelectImprovedSNCF
-            options={options}
+            options={removeDuplicates(options)}
             onChange={(option) => {
               onSelectSuggestion(option);
               setIsSelectVisible(false);

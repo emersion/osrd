@@ -108,12 +108,8 @@ function SelectImproved<T extends string | SelectOptionObject>({
 
   const optionsComponents = useMemo(
     () =>
-      filteredOptions.map((option, index) => (
-        <span
-          className="select-menu-item"
-          role="listitem"
-          key={`${index}-${getOptionValue(option)}`}
-        >
+      filteredOptions.map((option) => (
+        <span className="select-menu-item" role="listitem" key={getOptionValue(option)}>
           <button type="button" disabled={disabled} onClick={() => selectItem(option)}>
             {getOptionLabel(option)}
           </button>

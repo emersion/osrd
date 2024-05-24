@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 import { Button } from '@osrd-project/ui-core';
-import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
+// import { Location, ArrowUp, ArrowDown } from '@osrd-project/ui-icons';
 import { useSelector } from 'react-redux';
 
 import STDCM_REQUEST_STATUS from 'applications/stdcm/consts';
@@ -11,7 +11,7 @@ import ScenarioExplorer from 'modules/scenario/components/ScenarioExplorer';
 import { Map } from 'modules/trainschedule/components/ManageTrainSchedule';
 
 import StdcmConsist from '../components/StdcmConsist';
-import StdcmDefaultCard from '../components/StdcmDefaultCard';
+// import StdcmDefaultCard from '../components/StdcmDefaultCard';
 import StdcmDestination from '../components/StdcmDestination';
 import StdcmHeader from '../components/StdcmHeader';
 import StdcmLoader from '../components/StdcmLoader';
@@ -53,29 +53,37 @@ const StdcmViewV2 = () => {
                 globalScenarioId={scenarioID}
               />
             </div>
-            <StdcmConsist isPending={isPending} />
+            {scenarioID && <StdcmConsist isPending={isPending} />}
           </div>
-          <div className="stdcm-v2__separator" />
-          <div className="stdcm-v2-simulation-itinirary">
-            {/* //TODO: rename StdcmDefaultCard */}
-            {/* <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} /> */}
-            <StdcmOrigin isPending={isPending} />
-            {/* <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} /> */}
-            <StdcmDestination isPending={isPending} />
-            {/* <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} /> */}
-            <Button
-              label="Obtenir la simulation"
-              onClick={() => {
-                setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.pending);
-                launchStdcmRequestV2();
-              }}
-            />
-            {isPending && <StdcmLoader cancelStdcmRequest={cancelStdcmRequest} ref={loaderRef} />}
+          {scenarioID && (
+            <>
+              <div className="stdcm-v2__separator" />
+              <div className="stdcm-v2-simulation-itinirary">
+                {/* //TODO: rename StdcmDefaultCard */}
+                {/* <StdcmDefaultCard text="Indiquer le sillon antérieur" Icon={<ArrowUp size="lg" />} /> */}
+                <StdcmOrigin isPending={isPending} />
+                {/* <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} /> */}
+                <StdcmDestination isPending={isPending} />
+                {/* <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} /> */}
+                <Button
+                  label="Obtenir la simulation"
+                  onClick={() => {
+                    setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.pending);
+                    launchStdcmRequestV2();
+                  }}
+                />
+                {isPending && (
+                  <StdcmLoader cancelStdcmRequest={cancelStdcmRequest} ref={loaderRef} />
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        {scenarioID && (
+          <div className="osrd-config-item-container osrd-config-item-container-map stdcm-v2-map">
+            <Map />
           </div>
-        </div>
-        <div className="osrd-config-item-container osrd-config-item-container-map stdcm-v2-map">
-          <Map />
-        </div>
+        )}
         <div />
       </div>
     </div>
