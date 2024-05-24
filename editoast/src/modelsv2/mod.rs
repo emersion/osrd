@@ -1,6 +1,7 @@
 pub mod database;
 pub mod documents;
 pub mod electrical_profiles;
+pub mod fixtures;
 pub mod infra;
 pub mod infra_objects;
 pub mod light_rolling_stock;
