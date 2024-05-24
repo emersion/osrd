@@ -6,7 +6,7 @@ use std::{ops::Deref, sync::Arc};
 
 use actix_http::Request;
 use actix_web::{
-    body::BoxBody,
+    body::{BoxBody, MessageBody},
     dev::{Service, ServiceResponse},
     middleware::NormalizePath,
     test::init_service,
@@ -14,6 +14,7 @@ use actix_web::{
     App, Error,
 };
 use chashmap::CHashMap;
+use serde::de::DeserializeOwned;
 
 use crate::{
     client::{MapLayersConfig, PostgresConfig, RedisConfig},
@@ -38,6 +39,7 @@ pub(crate) struct TestAppBuilder {
     db_pool: Option<DbConnectionPoolV2>,
     core_client: Option<CoreClient>,
     db_pool_v1: bool,
+    tracing_level: tracing_subscriber::filter::LevelFilter,
 }
 
 impl TestAppBuilder {
@@ -46,6 +48,7 @@ impl TestAppBuilder {
             db_pool: None,
             core_client: None,
             db_pool_v1: false,
+            tracing_level: tracing_subscriber::filter::LevelFilter::DEBUG,
         }
     }
 
@@ -69,6 +72,12 @@ impl TestAppBuilder {
         self
     }
 
+    #[allow(dead_code)]
+    pub fn tracing_level(mut self, level: tracing_subscriber::filter::LevelFilter) -> Self {
+        self.tracing_level = level;
+        self
+    }
+
     pub fn default_app(
     ) -> TestApp<impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error>> {
         let pool = DbConnectionPoolV2::for_tests();
@@ -82,6 +91,18 @@ impl TestAppBuilder {
     pub fn build(
         self,
     ) -> TestApp<impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error>> {
+        let sub = tracing_subscriber::fmt()
+            .with_env_filter(
+                tracing_subscriber::EnvFilter::builder()
+                    .with_default_directive(self.tracing_level.into())
+                    .from_env_lossy(),
+            )
+            .with_line_number(true)
+            .with_file(true)
+            .with_span_events(tracing_subscriber::fmt::format::FmtSpan::CLOSE)
+            .finish();
+        let tracing_guard = tracing::subscriber::set_default(sub);
+
         let json_cfg = JsonConfig::default()
             .limit(250 * 1024 * 1024) // 250MB
             .error_handler(|err, _| InternalError::from(err).into());
@@ -123,6 +144,7 @@ impl TestAppBuilder {
             service,
             db_pool: ref_db_pool,
             core_client: ref_core_client,
+            tracing_guard,
         }
     }
 }
@@ -141,6 +163,8 @@ where
     /// The Option<> lasts while the pool V1 is still around.
     db_pool: Option<Arc<DbConnectionPoolV2>>,
     core_client: Arc<CoreClient>,
+    #[allow(unused)] // included here to extend its lifetime, not meant to be used in any way
+    tracing_guard: tracing::subscriber::DefaultGuard,
 }
 
 impl<S> TestApp<S>
@@ -157,6 +181,17 @@ where
             .as_ref()
             .expect("no DbConnectionPoolV2 setup")
             .clone()
+    }
+
+    pub fn fetch(&self, req: Request) -> TestResponse {
+        futures::executor::block_on(async move {
+            tracing::debug!(target: "test_app", request = ?req, "Fetching test request");
+            let response = self.service.call(req).await.unwrap_or_else(|err| {
+                tracing::error!(target: "test_app", error = ?err, "Error fetching test request");
+                panic!("could not fetch test request");
+            });
+            TestResponse::new(response)
+        })
     }
 }
 
@@ -177,5 +212,53 @@ where
 {
     fn as_ref(&self) -> &S {
         &self.service
+    }
+}
+
+pub struct TestResponse {
+    inner: ServiceResponse<BoxBody>,
+}
+
+impl TestResponse {
+    fn new(inner: ServiceResponse<BoxBody>) -> Self {
+        tracing::debug!(target: "test_app", response = ?inner, "Recieved test response");
+        Self { inner }
+    }
+
+    pub fn assert_status(self, status: actix_http::StatusCode) -> Self {
+        pretty_assertions::assert_eq!(self.inner.status(), status, "unexpected status code");
+        self
+    }
+
+    pub fn bytes(self) -> actix_web::web::Bytes {
+        self.inner
+            .into_body()
+            .try_into_bytes()
+            .expect("cannot extract body out of test response")
+    }
+
+    pub fn json<T: DeserializeOwned>(self) -> T {
+        let body = self.bytes();
+        let value = serde_json::from_slice(body.as_ref()).unwrap_or_else(|err| {
+            tracing::error!(
+                target: "test_app",
+                error = ?err,
+                "Error deserializing test response into the desired type"
+            );
+            let actual: serde_json::Value =
+                serde_json::from_slice(body.as_ref()).unwrap_or_else(|err| {
+                    tracing::error!(
+                        target: "test_app",
+                        error = ?err,
+                        ?body,
+                        "Failed to deserialize test response body into JSON"
+                    );
+                    panic!("could not deserialize test response into JSON");
+                });
+            let pretty = serde_json::to_string_pretty(&actual).unwrap();
+            tracing::error!(target: "test_app", body = %pretty, "Actual JSON value");
+            panic!("could not deserialize test request");
+        });
+        value
     }
 }
