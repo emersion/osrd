@@ -25,12 +25,7 @@ const StdcmViewV2 = () => {
   const studyID = useSelector(getStudyID);
   const projectID = useSelector(getProjectID);
   const scenarioID = useSelector(getScenarioID);
-  const {
-    launchStdcmRequestV2,
-    cancelStdcmRequest,
-    setCurrentStdcmRequestStatus,
-    currentStdcmRequestStatus,
-  } = useStdcm();
+  const { launchStdcmRequest, cancelStdcmRequest, currentStdcmRequestStatus } = useStdcm();
   const isPending = currentStdcmRequestStatus === STDCM_REQUEST_STATUS.pending;
   const loaderRef = useRef<HTMLDivElement>(null);
 
@@ -65,13 +60,7 @@ const StdcmViewV2 = () => {
                 {/* <StdcmDefaultCard text="Ajouter un passage" Icon={<Location size="lg" />} /> */}
                 <StdcmDestination isPending={isPending} />
                 {/* <StdcmDefaultCard text="Indiquer le sillon postérieur" Icon={<ArrowDown size="lg" />} /> */}
-                <Button
-                  label="Obtenir la simulation"
-                  onClick={() => {
-                    setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.pending);
-                    launchStdcmRequestV2();
-                  }}
-                />
+                <Button label="Obtenir la simulation" onClick={() => launchStdcmRequest()} />
                 {isPending && (
                   <StdcmLoader cancelStdcmRequest={cancelStdcmRequest} ref={loaderRef} />
                 )}

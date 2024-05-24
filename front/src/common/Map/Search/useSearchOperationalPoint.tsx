@@ -88,7 +88,6 @@ export default function useSearchOperationalPoint(props?: SearchOperationalPoint
         ...compact(
           sortedResults.map(
             (result) =>
-              // (MAIN_OP_CH_CODES.includes(result.ch) ? 'BV' : result.ch)
               result.ch || '-'
           )
         ),

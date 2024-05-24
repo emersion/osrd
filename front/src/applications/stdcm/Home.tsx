@@ -7,12 +7,12 @@ import { Route, Routes } from 'react-router-dom';
 import StdcmViewV1 from 'applications/stdcm/views/StdcmViewV1';
 import StdcmViewV2 from 'applications/stdcmV2/views/StdcmViewV2';
 import NavBarSNCF from 'common/BootstrapSNCF/NavBarSNCF';
-import { getSTDCMV2Activated } from 'reducers/user/userSelectors';
+import { getStdcmV2Activated } from 'reducers/user/userSelectors';
 
 export default function HomeStdcm() {
-  const STDCMV2Activated = useSelector(getSTDCMV2Activated);
+  const stdcmV2Activated = useSelector(getStdcmV2Activated);
   const { t } = useTranslation('home/home');
-  if (STDCMV2Activated) {
+  if (stdcmV2Activated) {
     return (
       <Routes>
         <Route path="" element={<StdcmViewV2 />} />

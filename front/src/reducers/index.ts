@@ -50,7 +50,7 @@ const userWhiteList = [
   'account',
   'userPreferences',
   'trainScheduleV2Activated',
-  'STDCMV2Activated',
+  'stdcmV2Activated',
 ];
 
 const mainWhiteList = ['lastInterfaceVersion'];

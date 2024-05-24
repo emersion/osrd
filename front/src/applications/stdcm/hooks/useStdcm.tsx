@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { cloneDeep } from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,7 @@ import {
   updateSelectedProjection,
 } from 'reducers/osrdsimulation/actions';
 import type { Train } from 'reducers/osrdsimulation/types';
+import { getStdcmV2Activated, getTrainScheduleV2Activated } from 'reducers/user/userSelectors';
 import { useAppDispatch } from 'store';
 import { castErrorToFailure } from 'utils/error';
 
@@ -37,6 +38,8 @@ export default function useStdcm() {
   const { t } = useTranslation(['translation', 'stdcm']);
   const { getConf } = useOsrdConfSelectors();
   const osrdconf = useSelector(getConf);
+  const trainScheduleV2Activated = useSelector(getTrainScheduleV2Activated);
+  const stdcmV2Activated = useSelector(getStdcmV2Activated);
 
   const [postStdcm] = osrdEditoastApi.endpoints.postStdcm.useMutation();
   const [postV2TimetableByIdStdcm] =
@@ -53,7 +56,7 @@ export default function useStdcm() {
 
   const { timetableID } = osrdconf;
 
-  const launchStdcmRequest = async () => {
+  const launchStdcmRequestV1 = async () => {
     const payload = formatStdcmConf(dispatch, t, osrdconf as OsrdStdcmConfState);
     if (payload && timetableID) {
       postStdcm(payload)
@@ -141,6 +144,15 @@ export default function useStdcm() {
     }
   };
 
+  const launchStdcmRequest = async () => {
+    setCurrentStdcmRequestStatus(STDCM_REQUEST_STATUS.pending);
+    if (trainScheduleV2Activated || stdcmV2Activated) {
+      launchStdcmRequestV2();
+    } else {
+      launchStdcmRequestV1();
+    }
+  };
+
   const cancelStdcmRequest = () => {
     // when http ready https://axios-http.com/docs/cancellation
 
@@ -157,11 +169,10 @@ export default function useStdcm() {
     stdcmResults,
     stdcmV2Results,
     currentStdcmRequestStatus,
+    launchStdcmRequest,
     setStdcmResults,
     setStdcmV2Results,
     setCurrentStdcmRequestStatus,
-    launchStdcmRequest,
-    launchStdcmRequestV2,
     cancelStdcmRequest,
   };
 }
