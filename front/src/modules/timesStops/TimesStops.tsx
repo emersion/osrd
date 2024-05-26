@@ -18,7 +18,7 @@ import type { SuggestedOP } from 'modules/trainschedule/components/ManageTrainSc
 import type { PathStep } from 'reducers/osrdconf/types';
 import { useAppDispatch } from 'store';
 
-import timeColumn from './TimeColomnComponent';
+import timeColumn from './TimeColumnComponent';
 
 type TimesStopsProps = {
   pathProperties: ManageTrainSchedulePathProperties;
@@ -73,11 +73,16 @@ const TimesStops = ({ pathProperties, pathSteps = [], setPathProperties }: Times
       {
         ...keyColumn<PathWaypointColumn, 'arrival'>('arrival', timeColumn),
         title: t('arrival_time'),
+        cellClassName: ({ rowIndex }) => (rowIndex === 0 ? 'dsg-hidden-cell' : ''),
         grow: 0.6,
       },
       {
         ...keyColumn<PathWaypointColumn, 'departure'>('departure', timeColumn),
         title: t('departure_time'),
+        cellClassName: ({ rowIndex }) =>
+          rowIndex === 0 || rowIndex === findLastIndex(pathProperties.allVias)
+            ? 'dsg-hidden-cell'
+            : '',
         grow: 0.6,
       },
       {
@@ -131,6 +136,7 @@ const TimesStops = ({ pathProperties, pathSteps = [], setPathProperties }: Times
           dispatch(upsertViaFromSuggestedOP(rowData as SuggestedOP));
           setPathProperties({ ...pathProperties, allVias: e as SuggestedOP[] });
         }
+        setTimesStopsSteps(e as PathWaypointColumn[]);
       }}
       lockRows
       height={600}

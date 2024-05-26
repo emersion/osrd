@@ -25,7 +25,7 @@ export default function formatTrainSchedulePayload(
     initial_speed: initialSpeed,
     labels,
     // TODO TS2 : handle margins
-    // margins: validConfig.margins,
+    margins: validConfig.margins,
     options: {
       use_electrical_profiles: usingElectricalProfiles,
     },
@@ -34,7 +34,7 @@ export default function formatTrainSchedulePayload(
     // power_restrictions: validConfig.powerRestrictions,
     rolling_stock_name: rollingStockName,
     // TODO TS2 : handle handle margins
-    // schedule: validConfig.pathSteps.***
+    schedule: validConfig.schedule,
     speed_limit_tag: speedLimitByTag,
     start_time: startTime,
     train_name: trainName,
